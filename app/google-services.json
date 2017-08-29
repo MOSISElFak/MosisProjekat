@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "395948323234",
+    "firebase_url": "https://mosisproj.firebaseio.com",
+    "project_id": "mosisproj",
+    "storage_bucket": "mosisproj.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:395948323234:android:7ad3e7d889ad599d",
+        "android_client_info": {
+          "package_name": "com.example.marija.mosisproj"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "395948323234-6lgpdmc11ab37tnthifdmvf7mdpbioj7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.marija.mosisproj",
+            "certificate_hash": "463201d802a3e971fb3e3c2a9c2a32b3ded3b8ae"
+          }
+        },
+        {
+          "client_id": "395948323234-lh52qvj96n5nsdb91tdiet1cc6q76597.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrKxKYmss5q7NuB4bNx8HELFInKZ9D2BQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "395948323234-lh52qvj96n5nsdb91tdiet1cc6q76597.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
