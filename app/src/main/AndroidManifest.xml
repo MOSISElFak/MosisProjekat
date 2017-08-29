@@ -44,7 +44,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCxyf2u21FuSXHrodqxiPsHIwJ7-LypS14" />
+            android:value="AIzaSyDhbkgEZMFb6ParKqmyhdkV9tcoKTMcqmc" />
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="barcode" />

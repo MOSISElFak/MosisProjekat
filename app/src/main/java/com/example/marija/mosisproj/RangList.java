@@ -15,6 +15,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class RangList extends AppCompatActivity {
     ListView listview;
     ArrayList<String> list=new ArrayList<>();
     ArrayAdapter<String> adapter;
+    Gson gson=new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +45,13 @@ public class RangList extends AppCompatActivity {
         dref.orderByChild("score").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Korisnik korisnik = dataSnapshot.getValue(Korisnik.class);
-                String value= korisnik.getFirstname()+" "+korisnik.getLastname() +" "+korisnik.getScore();
+
+                Object korisnik= dataSnapshot.getValue();
+                String json=gson.toJson(korisnik);
+                Korisnik p=gson.fromJson(json,Korisnik.class);
+
+                String value=String.valueOf(p.getFirstname()+" "+p.getLastname()+" "+p.getScore());
+
                 list.add(value);
                 adapter.notifyDataSetChanged();
             }
