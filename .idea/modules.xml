@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MosisProj.iml" filepath="$PROJECT_DIR$/MosisProj.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MosisProjekat.iml" filepath="$PROJECT_DIR$/MosisProjekat.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

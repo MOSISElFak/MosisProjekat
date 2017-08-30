@@ -1,5 +1,7 @@
 package com.example.marija.mosisproj;
 
+import android.widget.EditText;
+
 import java.util.List;
 
 /**
