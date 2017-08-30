@@ -99,7 +99,7 @@ public class ProfileActivity extends AppCompatActivity {
                                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                         // Local temp file has been created
                                         Bitmap myBitmap = BitmapFactory.decodeFile(localFile2.getAbsolutePath());
-                                        ImageView image=(ImageView) findViewById(R.id.profile_picture);
+                                        ImageView image=(ImageView) findViewById(R.id.imageView);
                                         image.setImageBitmap(myBitmap);
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
