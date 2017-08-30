@@ -33,7 +33,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import com.example.marija.mosisproj.Korisnik;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.HashMap;
@@ -171,7 +170,7 @@ public class RegisterActivity extends AppCompatActivity {
         String userID=user.getUid();
         StorageReference sRef = storageRef.child(userID+".jpg");
 
-        ImageView imageView = (ImageView) findViewById(R.id.imageView);
+        ImageView imageView = (ImageView) findViewById(R.id.profilePicture);
         imageView.setDrawingCacheEnabled(true);
         imageView.buildDrawingCache();
         Bitmap bitmap = imageView.getDrawingCache();
@@ -209,14 +208,17 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 });
 
-        Korisnik k=new Korisnik();
-        k.setFirstname(nameEdit.getText().toString());
-        k.setLastname(lastnameEdit.getText().toString());
-        k.setPhonenumber(phoneEdit.getText().toString());
-        k.setEmail(user.getEmail());
-        k.setScore("0");
+
+        Korisnik t=new Korisnik();
+        t.setFirstname(nameEdit.getText().toString());
+        t.setLastname(lastnameEdit.getText().toString());
+        t.setPhonenumber(phoneEdit.getText().toString());
+        t.setEmail(user.getEmail());
         mDatabase= FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("user").child(user.getUid()).setValue(k);
+        /*mDatabase.child("user").child(user.getUid()).child("firstname").setValue(nameEdit.getText().toString());
+        mDatabase.child("user").child(user.getUid()).child("lastname").setValue(lastnameEdit.getText().toString());
+        mDatabase.child("user").child(user.getUid()).child("phone").setValue(phoneEdit.getText().toString());*/
+        mDatabase.child("user").child(user.getUid()).setValue(t);
     }
 
     @Override
@@ -226,7 +228,7 @@ public class RegisterActivity extends AppCompatActivity {
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
             selectedImage = data.getData();
             String[] filePathColumn = { MediaStore.Images.Media.DATA };
-            ImageView imageView = (ImageView) findViewById(R.id.imageView);
+            ImageView imageView = (ImageView) findViewById(R.id.profilePicture);
             imageView.setImageURI(selectedImage);
 
         }
