@@ -18,6 +18,8 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -42,6 +44,7 @@ public class MyService extends Service {
     private int mNotificationId = 001;
     private NotificationCompat.Builder mBuilder;
     private NotificationManager mNotifyMgr;
+    private FirebaseUser user;
 
     DatabaseReference dref;
     ArrayList<Spot> list;
@@ -104,6 +107,33 @@ public class MyService extends Service {
                 }
                 i++;
             }
+
+            user = FirebaseAuth.getInstance().getCurrentUser();
+
+            final Gson gson=new Gson();
+            dref=FirebaseDatabase.getInstance().getReference("user/"+ user.getUid());
+
+            dref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                    Object user= dataSnapshot.getValue();
+                    String json=gson.toJson(user);
+                    Korisnik p=gson.fromJson(json,Korisnik.class);
+                    p.setLatitude(currLocation.getLatitude());
+                    p.setLongitude(currLocation.getLongitude());
+                    dref.setValue(p);
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    System.out.println("The read failed: " + databaseError.getCode());
+                }
+            });
+
+
 
         }
 

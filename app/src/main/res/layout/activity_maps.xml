@@ -17,6 +17,16 @@
             android:layout_height="wrap_content"
             android:text="Find path"
             android:id="@+id/btnFindPath" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show users"
+            android:id="@+id/btnShowUsers" />
+        <EditText
+            android:id="@+id/editTextDistance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
         <ImageView
             android:layout_marginLeft="20dp"
             android:layout_marginTop="5dp"

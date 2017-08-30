@@ -8,9 +8,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -19,6 +23,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,12 +35,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -44,6 +51,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -51,6 +59,7 @@ import org.json.JSONException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -61,30 +70,44 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
+import static android.R.attr.value;
+import static android.R.id.list;
+
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, DirectionFinderListener {
 
     private GoogleMap mMap;
     private Button btnFindPath;
+    private Button btnShowFriend;
     private List<Marker> originMarkers = new ArrayList<>();
     private List<Marker> destinationMarkers = new ArrayList<>();
     private List<Polyline> polylinePaths = new ArrayList<>();
     private ProgressDialog progressDialog;
     private double latitude;
     private double longitude;
+    private DatabaseReference db;
+    private EditText editTextDistance;
+
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+    private File localFile;
 
     private double dlatitude;
     private double dlongitude;
 
+    private  Location tasklocation;
+    private   Location location;
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private String test;
+    private  Korisnik k;
 
     BroadcastReceiver receiver;
     String GPS_FILTER = "com.example.marija.mylocationtracker.LOCATION";
@@ -114,6 +137,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         btnFindPath = (Button) findViewById(R.id.btnFindPath);
+        btnShowFriend = (Button) findViewById(R.id.btnShowUsers);
+        editTextDistance= (EditText) findViewById(R.id.editTextDistance);
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+        localFile=null;
+
+        tasklocation = new Location(LocationManager.GPS_PROVIDER);
+        location = new Location(LocationManager.GPS_PROVIDER);
+        location.setLongitude(longitude);
+        location.setLatitude(latitude);
 
         btnFindPath.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,11 +154,115 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 sendRequest();
             }
         });
+        btnShowFriend.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+            showFriends();
+        }
+        });
 
         IntentFilter mainFilter = new IntentFilter(GPS_FILTER);
         receiver = new MyMainLocalReceiver();
         registerReceiver(receiver, mainFilter);
+
+
     }
+    private void showFriends() {
+
+
+        db = FirebaseDatabase.getInstance().getReference("user");
+        db.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<Korisnik> peopleList = new ArrayList<Korisnik>();
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    //Getting the data from snapshot
+                    k = postSnapshot.getValue(Korisnik.class);
+                    String key = postSnapshot.getKey();
+
+                    //add person to your lis
+                    //create a list view, and add the apapter, passing in your list
+
+
+
+                    tasklocation.setLatitude(k.getLatitude());
+                    tasklocation.setLongitude(k.getLongitude());
+
+
+                    final LatLng userLonLat = new LatLng(tasklocation.getLatitude(), tasklocation.getLongitude());
+
+                    double distance = location.distanceTo(tasklocation);
+
+                    double pom=Double.parseDouble(editTextDistance.getText().toString());
+
+                    if (distance < pom) {
+
+                       // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLonLat, 16));
+                        StorageReference storageReference = storageRef.child(key + ".jpg");
+
+                        try {
+                            localFile = File.createTempFile(key, "jpg");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        storageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                // Local temp file has been created
+                                Bitmap myBitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                                int width = myBitmap.getWidth();
+                                int height = myBitmap.getHeight();
+
+                                int maxWidth = 200;
+                                int maxHeight = 200;
+
+                                Log.v("Pictures", "Width and height are " + width + "--" + height);
+
+                                if (width > height) {
+                                    // landscape
+                                    float ratio = (float) width / maxWidth;
+                                    width = maxWidth;
+                                    height = (int) (height / ratio);
+                                } else if (height > width) {
+                                    // portrait
+                                    float ratio = (float) height / maxHeight;
+                                    height = maxHeight;
+                                    width = (int) (width / ratio);
+                                } else {
+                                    // square
+                                    height = maxHeight;
+                                    width = maxWidth;
+                                }
+
+                                Bitmap myScaledBitmap = Bitmap.createScaledBitmap(myBitmap, width, height, false);
+                                BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(myScaledBitmap);
+                                MarkerOptions markerOptions = new MarkerOptions().position(userLonLat)
+                                        .title(k.getFirstname() + ' ' + k.getLastname())
+                                        .snippet(k.getEmail())
+                                        .icon(icon);
+
+                                Marker mMarker = mMap.addMarker(markerOptions);
+
+                            }
+                        });
+
+
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
+
+    }
+
+
 
     private void sendRequest() {
         if(latitude!=0 && longitude!=0) {
@@ -147,15 +284,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         mMap = googleMap;
         dlatitude=Double.parseDouble(getIntent().getStringExtra("latitude"));
         dlongitude=Double.parseDouble(getIntent().getStringExtra("longitude"));
+
         LatLng hcmus = new LatLng(dlatitude, dlongitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hcmus, 15));
-        originMarkers.add(mMap.addMarker(new MarkerOptions()
-                .title("NIS")
-                .position(hcmus)));
-
 
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
