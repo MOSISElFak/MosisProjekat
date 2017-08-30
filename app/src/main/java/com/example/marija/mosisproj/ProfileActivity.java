@@ -71,7 +71,7 @@ public class ProfileActivity extends AppCompatActivity {
                             }
                         });
         }
-     /*  FloatingActionButton fab = (FloatingActionButton) findViewById(fab);
+     /* bb FloatingActionButton fab = (FloatingActionButton) findViewById(fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
