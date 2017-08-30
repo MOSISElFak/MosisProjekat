@@ -42,6 +42,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -105,9 +106,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private  Location tasklocation;
     private   Location location;
     private static final String TAG = MainActivity.class.getSimpleName();
+    private List<Korisnik> korisnici;
 
-    private String test;
-    private  Korisnik k;
+
+    private HashMap<String, String> markersMap;
+    private int ipom;
+    private   BitmapDescriptor icon;
 
     BroadcastReceiver receiver;
     String GPS_FILTER = "com.example.marija.mylocationtracker.LOCATION";
@@ -145,8 +149,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         tasklocation = new Location(LocationManager.GPS_PROVIDER);
         location = new Location(LocationManager.GPS_PROVIDER);
-        location.setLongitude(longitude);
-        location.setLatitude(latitude);
+
 
         btnFindPath.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,7 +161,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         {
             @Override
             public void onClick(View v) {
-            showFriends();
+                location.setLongitude(longitude);
+                location.setLatitude(latitude);
+                showFriends();
         }
         });
 
@@ -169,36 +174,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
     private void showFriends() {
-
-
         db = FirebaseDatabase.getInstance().getReference("user");
-        db.addValueEventListener(new ValueEventListener() {
+        db.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                ArrayList<Korisnik> peopleList = new ArrayList<Korisnik>();
+                mMap.clear();
+                korisnici=new ArrayList<Korisnik>();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     //Getting the data from snapshot
-                    k = postSnapshot.getValue(Korisnik.class);
-                    String key = postSnapshot.getKey();
+                    Korisnik k = postSnapshot.getValue(Korisnik.class);
+                    korisnici.add(k);
 
-                    //add person to your lis
-                    //create a list view, and add the apapter, passing in your list
+                    final String key = postSnapshot.getKey();
+                    if (markersMap == null)
+                        markersMap = new HashMap<String, String>();
+                    markersMap.put(k.getEmail(), key);
+                }
 
-
-
-                    tasklocation.setLatitude(k.getLatitude());
-                    tasklocation.setLongitude(k.getLongitude());
-
+                for (ipom = 0; ipom < korisnici.size(); ipom++) {
+                    tasklocation.setLatitude(korisnici.get(ipom).getLatitude());
+                    tasklocation.setLongitude(korisnici.get(ipom).getLongitude());
 
                     final LatLng userLonLat = new LatLng(tasklocation.getLatitude(), tasklocation.getLongitude());
 
                     double distance = location.distanceTo(tasklocation);
 
-                    double pom=Double.parseDouble(editTextDistance.getText().toString());
+                    double pom = Double.parseDouble(editTextDistance.getText().toString());
 
                     if (distance < pom) {
+                        String key = markersMap.get(korisnici.get(ipom).getEmail());
+                        final String ime=korisnici.get(ipom).getFirstname();
+                        final String prezime=korisnici.get(ipom).getLastname();
+                        final String email=korisnici.get(ipom).getEmail();
 
-                       // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLonLat, 16));
                         StorageReference storageReference = storageRef.child(key + ".jpg");
 
                         try {
@@ -237,20 +245,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 }
 
                                 Bitmap myScaledBitmap = Bitmap.createScaledBitmap(myBitmap, width, height, false);
-                                BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(myScaledBitmap);
+                                icon = BitmapDescriptorFactory.fromBitmap(myScaledBitmap);
+
+
                                 MarkerOptions markerOptions = new MarkerOptions().position(userLonLat)
-                                        .title(k.getFirstname() + ' ' + k.getLastname())
-                                        .snippet(k.getEmail())
+                                        .title(ime + ' ' + prezime)
+                                        .snippet(email)
                                         .icon(icon);
 
                                 Marker mMarker = mMap.addMarker(markerOptions);
 
                             }
+
+
+
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Handle any errors
+                            }
                         });
-
-
                     }
-
                 }
             }
 
@@ -258,8 +273,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-
-
     }
 
 
