@@ -1,5 +1,7 @@
 package com.example.marija.mosisproj;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +13,7 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -21,6 +24,9 @@ import static com.example.marija.mosisproj.R.id.odgovor2;
 public class AddChalengeQuestionActivity extends AppCompatActivity {
 
     FirebaseUser user;
+    double latitude;
+    double longitude;
+
 
 
     @Override
@@ -45,16 +51,32 @@ public class AddChalengeQuestionActivity extends AppCompatActivity {
 
                 ChalengeQuestion q = new ChalengeQuestion(question, answer);
 
-                q.setLat("0.0");
-                q.setLng("0.0");
-
 
                 user = FirebaseAuth.getInstance().getCurrentUser();
-
 
                 DatabaseReference mDatabase;
 
                 mDatabase = FirebaseDatabase.getInstance().getReference();
+
+                mDatabase.child("user").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                      Korisnik k=dataSnapshot.getValue(Korisnik.class);
+
+                        latitude=k.getLatitude();
+                        longitude=k.getLongitude();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        System.out.println("The read failed: " + databaseError.getCode());
+                    }
+                });
+
+                String s=Double.toString(latitude);
+
+                q.setLat(Double.toString(latitude));
+                q.setLng(Double.toString(longitude));
 
                 mDatabase.child("challenge_questions").child(user.getUid().toString()).push().setValue(q);
 
