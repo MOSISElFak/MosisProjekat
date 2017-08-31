@@ -1,10 +1,13 @@
 package com.example.marija.mosisproj;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,6 +29,7 @@ public class QuizResultsActivity extends AppCompatActivity {
     DatabaseReference dref;
     FirebaseUser user;
     String correct,wrong;
+    Button btnAddQuestion;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +44,15 @@ public class QuizResultsActivity extends AppCompatActivity {
         netacni=(TextView) findViewById(R.id.netacni);
         netacni.setText(wrong);
 
+
+        btnAddQuestion=(Button)findViewById(R.id.btnAddQuestion);
+        btnAddQuestion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent AddQuestion =new Intent(QuizResultsActivity.this.getApplicationContext(),AddChalengeQuestionActivity.class);
+                startActivity(AddQuestion);
+            }
+        });
 
         user = FirebaseAuth.getInstance().getCurrentUser();
 

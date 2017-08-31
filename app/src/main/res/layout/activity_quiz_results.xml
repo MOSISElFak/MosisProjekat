@@ -62,4 +62,10 @@
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="8dp"
         app:layout_constraintLeft_toLeftOf="parent" />
+
+    <Button
+        android:id="@+id/btnAddQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dodaj pitanje" />
 </android.support.constraint.ConstraintLayout>

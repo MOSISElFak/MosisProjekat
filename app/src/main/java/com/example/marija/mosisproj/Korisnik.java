@@ -18,6 +18,16 @@ class Korisnik {
     public double latitude;
     public double longitude;
     public String email;
+    public String chalengeQuestion;
+
+    public String getChalengeQuestion() {
+        return chalengeQuestion;
+    }
+
+    public void setChalengeQuestion(String chalengeQuestion) {
+
+        this.chalengeQuestion = chalengeQuestion;
+    }
 
     public String getFirstname() {
         return firstname;

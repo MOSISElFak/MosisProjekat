@@ -17,14 +17,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
-import com.example.marija.mosisproj.Question;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static com.example.marija.mosisproj.R.*;
 
 public class QuizActivity extends AppCompatActivity {
 
@@ -47,12 +45,12 @@ public class QuizActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(layout.activity_quiz);
+        setContentView(R.layout.activity_quiz);
 
         setQuestion();
 
 
-        Button submitAnswers = (Button) findViewById(id.button4);
+        Button submitAnswers = (Button) findViewById(R.id.button4);
         submitAnswers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,15 +150,15 @@ public class QuizActivity extends AppCompatActivity {
                 tacanOdg3=pitanja.get(2).getTacniOdg();
                 //   tacanOdg4=pitanja.get(3).getTacniOdg();
 
-                question1=(TextView) findViewById(id.pitanje1);
-                question2=(TextView) findViewById(id.pitanje2);
-                question3=(TextView) findViewById(id.pitanje3);
+                question1=(TextView) findViewById(R.id.pitanje1);
+                question2=(TextView) findViewById(R.id.pitanje2);
+                question3=(TextView) findViewById(R.id.pitanje3);
                 //    question4=(TextView) findViewById(id.pitanje4);
 
-                odg11=(RadioButton) findViewById(id.odg11);
-                odg12=(RadioButton) findViewById(id.odg12);
-                odg13=(RadioButton) findViewById(id.odg13);
-                odg14=(RadioButton) findViewById(id.odg14);
+                odg11=(RadioButton) findViewById(R.id.odg11);
+                odg12=(RadioButton) findViewById(R.id.odg12);
+                odg13=(RadioButton) findViewById(R.id.odg13);
+                odg14=(RadioButton) findViewById(R.id.odg14);
 
                 niz=pitanja.get(0).getPonudjeniOdg().split(",");
                 odg11.setText(niz[0]);
@@ -169,10 +167,10 @@ public class QuizActivity extends AppCompatActivity {
                 odg14.setText(niz[3]);
 
 
-                odg31=(CheckBox) findViewById(id.odg31);
-                odg32=(CheckBox) findViewById(id.odg32);
-                odg33=(CheckBox) findViewById(id.odg33);
-                odg34=(CheckBox) findViewById(id.odg34);
+                odg31=(CheckBox) findViewById(R.id.odg31);
+                odg32=(CheckBox) findViewById(R.id.odg32);
+                odg33=(CheckBox) findViewById(R.id.odg33);
+                odg34=(CheckBox) findViewById(R.id.odg34);
 
                 niz1=pitanja.get(2).getPonudjeniOdg().split(",");
                 odg31.setText(niz1[0]);

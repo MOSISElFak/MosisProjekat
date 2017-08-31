@@ -13,4 +13,5 @@
     <string name="title_activity_maps2">Map</string>
     <string name="title_activity_profile">ProfileActivity</string>
     <string name="title_activity_quiz">QuizActivity</string>
+    <string name="title_activity_add_question">AddQuestionActivity</string>
 </resources>
