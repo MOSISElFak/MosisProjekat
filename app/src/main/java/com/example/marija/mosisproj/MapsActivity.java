@@ -98,6 +98,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private EditText editTextDistance;
 
     private StorageReference storageRef;
+    private FirebaseStorage storage;
     private File localFile;
 
     private double dlatitude;
@@ -108,10 +109,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String TAG = MainActivity.class.getSimpleName();
     private List<Korisnik> korisnici;
 
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     private HashMap<String, String> markersMap;
     private int ipom;
     private BitmapDescriptor icon;
+    private DownloadThread d;
 
     BroadcastReceiver receiver;
     String GPS_FILTER = "com.example.marija.mylocationtracker.LOCATION";
@@ -140,6 +144,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
 
+        mAuth=FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+                // ...
+            }
+        };
+
+
         btnFindPath = (Button) findViewById(R.id.btnFindPath);
         btnShowFriend = (Button) findViewById(R.id.btnShowUsers);
         editTextDistance = (EditText) findViewById(R.id.editTextDistance);
@@ -149,6 +170,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         tasklocation = new Location(LocationManager.GPS_PROVIDER);
         location = new Location(LocationManager.GPS_PROVIDER);
 
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
 
         btnFindPath.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,44 +196,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void showFriends() {
-        db = FirebaseDatabase.getInstance().getReference("user");
-        db.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mMap.clear();
-                korisnici = new ArrayList<Korisnik>();
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    //Getting the data from snapshot
-                    Korisnik k = postSnapshot.getValue(Korisnik.class);
-                    korisnici.add(k);
 
-                    final String key = postSnapshot.getKey();
-                    if (markersMap == null)
-                        markersMap = new HashMap<String, String>();
-                    markersMap.put(k.getEmail(), key);
-                }
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-                for (ipom = 0; ipom < korisnici.size(); ipom++) {
+        if (user != null) {
 
-                        String s= markersMap.get(korisnici.get(ipom).getEmail());
-                        DownloadThread d = new DownloadThread(markersMap.get(korisnici.get(ipom).getEmail()));
-                        d.start();
+            db = FirebaseDatabase.getInstance().getReference("user");
+            db.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    mMap.clear();
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        //Getting the data from snapshot
+                        Korisnik k = postSnapshot.getValue(Korisnik.class);
+
+                        final String key = postSnapshot.getKey();
+                        if (markersMap == null)
+                            markersMap = new HashMap<String, String>();
+                        markersMap.put(k.getEmail(), key);
+
+                        tasklocation.setLatitude(k.getLatitude());
+                        tasklocation.setLongitude(k.getLongitude());
+
+                        double distance = location.distanceTo(tasklocation);
+
+                        double pom = Double.parseDouble(editTextDistance.getText().toString());
+
+                        if (distance < pom) {
+
+                            String s = markersMap.get(k.getEmail());
+                            d = new DownloadThread(s, k);
+                            d.start();
+
+                        }
 
                         try {
                             d.join();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-
-
                     }
 
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
+                }
+
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
     }
 
 
@@ -254,6 +289,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
         mMap.setMyLocationEnabled(true);
+
     }
 
 
@@ -315,46 +351,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public class DownloadThread extends Thread {
         public String url;
+        public Korisnik k;
 
-        public DownloadThread(String url) {
+        public DownloadThread(String url, Korisnik k) {
             this.url = url;
+            this.k=k;
         }
 
         @Override
         public void run() {
             super.run();
 
-
-            tasklocation.setLatitude(korisnici.get(ipom).getLatitude());
-            tasklocation.setLongitude(korisnici.get(ipom).getLongitude());
-
-            final LatLng userLonLat = new LatLng(tasklocation.getLatitude(), tasklocation.getLongitude());
-
-            double distance = location.distanceTo(tasklocation);
-
-            double pom = Double.parseDouble(editTextDistance.getText().toString());
-
-            if (distance < pom) {
-                String key = markersMap.get(korisnici.get(ipom).getEmail());
-                final String ime = korisnici.get(ipom).getFirstname();
-                final String prezime = korisnici.get(ipom).getLastname();
-                final String email = korisnici.get(ipom).getEmail();
-
-                storageRef = FirebaseStorage.getInstance().getReference().child(key + ".jpg");
+                File f=null;
+                StorageReference storageReference=storageRef.child(url + ".jpg");
                 try {
-                    localFile = File.createTempFile(key, "jpg");
+                    f = File.createTempFile(url, "jpg");
                 }
                 catch (Exception e){
 
                 }
+                final File f2=f;
 
-                storageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                storageReference.getFile(f).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                         // Local temp file has been created
-                        String s=localFile.getAbsolutePath();
 
-                        Bitmap myBitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                        Bitmap myBitmap = BitmapFactory.decodeFile(f2.getAbsolutePath());
                         int width = myBitmap.getWidth();
                         int height = myBitmap.getHeight();
 
@@ -382,10 +405,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Bitmap myScaledBitmap = Bitmap.createScaledBitmap(myBitmap, width, height, false);
                         icon = BitmapDescriptorFactory.fromBitmap(myScaledBitmap);
 
+                        LatLng position=new LatLng(k.getLatitude(),k.getLongitude());
 
-                        MarkerOptions markerOptions = new MarkerOptions().position(userLonLat)
-                                .title(ime + ' ' + prezime)
-                                .snippet(email)
+                        MarkerOptions markerOptions = new MarkerOptions().position(position)
+                                .title(k.getFirstname() + ' ' + k.getLastname())
+                                .snippet(k.getEmail())
                                 .icon(icon);
 
                         Marker mMarker = mMap.addMarker(markerOptions);
@@ -403,4 +427,3 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
     }
-}

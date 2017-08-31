@@ -32,6 +32,7 @@ import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -45,6 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
    // private static final String TAG = MainActivity.class.getSimpleName();
     private DatabaseReference dref;
     private FirebaseUser user;
+    private FirebaseAuth firebaseAuth;
     private FirebaseStorage storage;
     private StorageReference storageRef;
 
@@ -55,25 +57,28 @@ public class ProfileActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        user = firebaseAuth.getCurrentUser();
 
         if(user!=null) {
 
-
-
-            dref=FirebaseDatabase.getInstance().getReference("user").child(user.getUid());
-            dref.addValueEventListener(new ValueEventListener() {
+            String s=user.getUid();
+            dref=FirebaseDatabase.getInstance().getReference("user").child(s);
+            dref.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(final DataSnapshot dataSnapshot) {
+
                                 Korisnik t=dataSnapshot.getValue(Korisnik.class);
+
                                 TextView Name=(TextView) findViewById(R.id.textViewName);
-                                Name.setText(t.firstname);
+                                Name.setText(t.getFirstname());
                                 TextView LastName=(TextView) findViewById(R.id.textViewLastName);
-                                LastName.setText(t.lastname);
+                                LastName.setText(t.getLastname());
                                 TextView Email=(TextView) findViewById(R.id.textViewEmail);
-                                Email.setText(t.email);
+                                Email.setText(t.getEmail());
                                 TextView PhoneNumber=(TextView) findViewById(R.id.textViewPhone);
-                                PhoneNumber.setText(t.phonenumber);
+                                PhoneNumber.setText(t.getPhonenumber());
 
                                 // ZA UCITAVANJE SLIKE U IMAGE_VIEW
 
@@ -110,29 +115,6 @@ public class ProfileActivity extends AppCompatActivity {
                                 });
 
                                //          GOTOVO
-
-                             /*   ImageView imageView = (ImageView) findViewById(R.id.imageView);
-                                imageView.setDrawingCacheEnabled(true);
-                                imageView.buildDrawingCache();
-                                Bitmap bitmap = imageView.getDrawingCache();
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                                byte[] data = baos.toByteArray();
-
-                                UploadTask uploadTask = sRef.putBytes(data);
-                                uploadTask.addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception exception) {
-                                        // Handle unsuccessful uploads
-                                    }
-                                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                                        @SuppressWarnings("VisibleForTests") Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                                    }
-                                });*/
-
 
                             }
                             @Override
