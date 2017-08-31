@@ -54,6 +54,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONException;
@@ -96,22 +97,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private DatabaseReference db;
     private EditText editTextDistance;
 
-    private FirebaseStorage storage;
     private StorageReference storageRef;
     private File localFile;
 
     private double dlatitude;
     private double dlongitude;
 
-    private  Location tasklocation;
-    private   Location location;
+    private Location tasklocation;
+    private Location location;
     private static final String TAG = MainActivity.class.getSimpleName();
     private List<Korisnik> korisnici;
 
 
     private HashMap<String, String> markersMap;
     private int ipom;
-    private   BitmapDescriptor icon;
+    private BitmapDescriptor icon;
 
     BroadcastReceiver receiver;
     String GPS_FILTER = "com.example.marija.mylocationtracker.LOCATION";
@@ -125,7 +125,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             EditText lat = (EditText) findViewById(R.id.lat);
             lon.setText(String.valueOf(longitude));
             lat.setText(String.valueOf(latitude));*/
-            Toast.makeText(getApplicationContext(), "Maps"+ String.valueOf(latitude) +  " " + String.valueOf(longitude), Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Maps" + String.valueOf(latitude) + " " + String.valueOf(longitude), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -142,10 +142,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         btnFindPath = (Button) findViewById(R.id.btnFindPath);
         btnShowFriend = (Button) findViewById(R.id.btnShowUsers);
-        editTextDistance= (EditText) findViewById(R.id.editTextDistance);
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReference();
-        localFile=null;
+        editTextDistance = (EditText) findViewById(R.id.editTextDistance);
+
+        localFile = null;
 
         tasklocation = new Location(LocationManager.GPS_PROVIDER);
         location = new Location(LocationManager.GPS_PROVIDER);
@@ -157,14 +156,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 sendRequest();
             }
         });
-        btnShowFriend.setOnClickListener(new View.OnClickListener()
-        {
+        btnShowFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 location.setLongitude(longitude);
                 location.setLatitude(latitude);
                 showFriends();
-        }
+            }
         });
 
         IntentFilter mainFilter = new IntentFilter(GPS_FILTER);
@@ -173,13 +171,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
+
     private void showFriends() {
         db = FirebaseDatabase.getInstance().getReference("user");
         db.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mMap.clear();
-                korisnici=new ArrayList<Korisnik>();
+                korisnici = new ArrayList<Korisnik>();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     //Getting the data from snapshot
                     Korisnik k = postSnapshot.getValue(Korisnik.class);
@@ -192,81 +191,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 for (ipom = 0; ipom < korisnici.size(); ipom++) {
-                    tasklocation.setLatitude(korisnici.get(ipom).getLatitude());
-                    tasklocation.setLongitude(korisnici.get(ipom).getLongitude());
 
-                    final LatLng userLonLat = new LatLng(tasklocation.getLatitude(), tasklocation.getLongitude());
-
-                    double distance = location.distanceTo(tasklocation);
-
-                    double pom = Double.parseDouble(editTextDistance.getText().toString());
-
-                    if (distance < pom) {
-                        String key = markersMap.get(korisnici.get(ipom).getEmail());
-                        final String ime=korisnici.get(ipom).getFirstname();
-                        final String prezime=korisnici.get(ipom).getLastname();
-                        final String email=korisnici.get(ipom).getEmail();
-
-                        StorageReference storageReference = storageRef.child(key + ".jpg");
+                        String s= markersMap.get(korisnici.get(ipom).getEmail());
+                        DownloadThread d = new DownloadThread(markersMap.get(korisnici.get(ipom).getEmail()));
+                        d.start();
 
                         try {
-                            localFile = File.createTempFile(key, "jpg");
-                        } catch (IOException e) {
+                            d.join();
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
 
-                        storageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                // Local temp file has been created
-                                Bitmap myBitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                                int width = myBitmap.getWidth();
-                                int height = myBitmap.getHeight();
 
-                                int maxWidth = 200;
-                                int maxHeight = 200;
-
-                                Log.v("Pictures", "Width and height are " + width + "--" + height);
-
-                                if (width > height) {
-                                    // landscape
-                                    float ratio = (float) width / maxWidth;
-                                    width = maxWidth;
-                                    height = (int) (height / ratio);
-                                } else if (height > width) {
-                                    // portrait
-                                    float ratio = (float) height / maxHeight;
-                                    height = maxHeight;
-                                    width = (int) (width / ratio);
-                                } else {
-                                    // square
-                                    height = maxHeight;
-                                    width = maxWidth;
-                                }
-
-                                Bitmap myScaledBitmap = Bitmap.createScaledBitmap(myBitmap, width, height, false);
-                                icon = BitmapDescriptorFactory.fromBitmap(myScaledBitmap);
-
-
-                                MarkerOptions markerOptions = new MarkerOptions().position(userLonLat)
-                                        .title(ime + ' ' + prezime)
-                                        .snippet(email)
-                                        .icon(icon);
-
-                                Marker mMarker = mMap.addMarker(markerOptions);
-
-                            }
-
-
-
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception exception) {
-                                // Handle any errors
-                            }
-                        });
                     }
-                }
+
             }
 
             @Override
@@ -276,16 +214,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-
     private void sendRequest() {
-        if(latitude!=0 && longitude!=0) {
+        if (latitude != 0 && longitude != 0) {
 
-            Intent i=getIntent();
-            dlatitude=Double.parseDouble(getIntent().getStringExtra("latitude"));
-            dlongitude=Double.parseDouble(getIntent().getStringExtra("longitude"));
+            Intent i = getIntent();
+            dlatitude = Double.parseDouble(getIntent().getStringExtra("latitude"));
+            dlongitude = Double.parseDouble(getIntent().getStringExtra("longitude"));
 
-            String origin= Double.toString(latitude)+","+Double.toString(longitude);
-            String destination =Double.toString(dlatitude)+","+Double.toString(dlongitude);
+            String origin = Double.toString(latitude) + "," + Double.toString(longitude);
+            String destination = Double.toString(dlatitude) + "," + Double.toString(dlongitude);
 
             try {
                 new DirectionFinder(this, origin, destination).execute();
@@ -299,8 +236,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
-        dlatitude=Double.parseDouble(getIntent().getStringExtra("latitude"));
-        dlongitude=Double.parseDouble(getIntent().getStringExtra("longitude"));
+        dlatitude = Double.parseDouble(getIntent().getStringExtra("latitude"));
+        dlongitude = Double.parseDouble(getIntent().getStringExtra("longitude"));
 
         LatLng hcmus = new LatLng(dlatitude, dlongitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hcmus, 15));
@@ -338,7 +275,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         if (polylinePaths != null) {
-            for (Polyline polyline:polylinePaths ) {
+            for (Polyline polyline : polylinePaths) {
                 polyline.remove();
             }
         }
@@ -375,5 +312,95 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-}
 
+    public class DownloadThread extends Thread {
+        public String url;
+
+        public DownloadThread(String url) {
+            this.url = url;
+        }
+
+        @Override
+        public void run() {
+            super.run();
+
+
+            tasklocation.setLatitude(korisnici.get(ipom).getLatitude());
+            tasklocation.setLongitude(korisnici.get(ipom).getLongitude());
+
+            final LatLng userLonLat = new LatLng(tasklocation.getLatitude(), tasklocation.getLongitude());
+
+            double distance = location.distanceTo(tasklocation);
+
+            double pom = Double.parseDouble(editTextDistance.getText().toString());
+
+            if (distance < pom) {
+                String key = markersMap.get(korisnici.get(ipom).getEmail());
+                final String ime = korisnici.get(ipom).getFirstname();
+                final String prezime = korisnici.get(ipom).getLastname();
+                final String email = korisnici.get(ipom).getEmail();
+
+                storageRef = FirebaseStorage.getInstance().getReference().child(key + ".jpg");
+                try {
+                    localFile = File.createTempFile(key, "jpg");
+                }
+                catch (Exception e){
+
+                }
+
+                storageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                        // Local temp file has been created
+                        String s=localFile.getAbsolutePath();
+
+                        Bitmap myBitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                        int width = myBitmap.getWidth();
+                        int height = myBitmap.getHeight();
+
+                        int maxWidth = 200;
+                        int maxHeight = 200;
+
+                        Log.v("Pictures", "Width and height are " + width + "--" + height);
+
+                        if (width > height) {
+                            // landscape
+                            float ratio = (float) width / maxWidth;
+                            width = maxWidth;
+                            height = (int) (height / ratio);
+                        } else if (height > width) {
+                            // portrait
+                            float ratio = (float) height / maxHeight;
+                            height = maxHeight;
+                            width = (int) (width / ratio);
+                        } else {
+                            // square
+                            height = maxHeight;
+                            width = maxWidth;
+                        }
+
+                        Bitmap myScaledBitmap = Bitmap.createScaledBitmap(myBitmap, width, height, false);
+                        icon = BitmapDescriptorFactory.fromBitmap(myScaledBitmap);
+
+
+                        MarkerOptions markerOptions = new MarkerOptions().position(userLonLat)
+                                .title(ime + ' ' + prezime)
+                                .snippet(email)
+                                .icon(icon);
+
+                        Marker mMarker = mMap.addMarker(markerOptions);
+
+                    }
+
+
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle any errors
+                    }
+                });
+            }
+
+        }
+    }
+}
