@@ -443,7 +443,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 .snippet(k.getEmail())
                                 .icon(icon);
 
+
+
                         Marker mMarker = mMap.addMarker(markerOptions);
+
+                        // onMarkerClick
+
+                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+                        {
+
+                            @Override
+                            public boolean onMarkerClick(Marker marker) {
+                                // if(arg0.getTitle().equals(k.getFirstname() + ' ' + k.getLastname())) // if marker source is clicked
+                             //   Toast.makeText(MapsActivity.this, marker.getTitle(), Toast.LENGTH_SHORT).show();// display toast
+
+                               Intent intent1 = new Intent(getApplicationContext(), ProfileActivity.class);
+                                //String title = marker.getTitle();
+                                //intent1.putExtra("markertitle", title);
+                                startActivity(intent1);
+                                return true;
+                            }
+                        });
 
                     }
 
