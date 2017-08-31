@@ -301,13 +301,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         markersMap = new HashMap<String, String>();
                     markersMap.put(k.getEmail(), key);
 
-                    tasklocation.setLatitude(k.getLatitude());
-                    tasklocation.setLongitude(k.getLongitude());
-
-                    double distance = location.distanceTo(tasklocation);
-
-                    double pom = Double.parseDouble(editTextDistance.getText().toString());
-
 
                         String s = markersMap.get(k.getEmail());
                         d = new DownloadThread(s, k);
