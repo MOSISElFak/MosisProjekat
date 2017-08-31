@@ -197,9 +197,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void showFriends() {
 
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        if (user != null) {
 
             db = FirebaseDatabase.getInstance().getReference("user");
             db.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -240,13 +237,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 }
 
-
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                 }
             });
         }
-    }
+
 
 
     private void sendRequest() {
@@ -290,6 +286,48 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         mMap.setMyLocationEnabled(true);
 
+
+        db = FirebaseDatabase.getInstance().getReference("user");
+        db.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mMap.clear();
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    //Getting the data from snapshot
+                    Korisnik k = postSnapshot.getValue(Korisnik.class);
+
+                    final String key = postSnapshot.getKey();
+                    if (markersMap == null)
+                        markersMap = new HashMap<String, String>();
+                    markersMap.put(k.getEmail(), key);
+
+                    tasklocation.setLatitude(k.getLatitude());
+                    tasklocation.setLongitude(k.getLongitude());
+
+                    double distance = location.distanceTo(tasklocation);
+
+                    double pom = Double.parseDouble(editTextDistance.getText().toString());
+
+
+                        String s = markersMap.get(k.getEmail());
+                        d = new DownloadThread(s, k);
+                        d.start();
+
+
+                    try {
+                        d.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
     }
 
 
