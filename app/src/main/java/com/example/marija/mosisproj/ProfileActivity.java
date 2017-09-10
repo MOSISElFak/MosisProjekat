@@ -9,12 +9,18 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ListViewCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,25 +44,30 @@ import com.google.gson.Gson;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.example.marija.mosisproj.R.id.editTextName;
-import static com.example.marija.mosisproj.R.id.fab;
 
 public class ProfileActivity extends AppCompatActivity {
 
-   // private static final String TAG = MainActivity.class.getSimpleName();
+    // private static final String TAG = MainActivity.class.getSimpleName();
     private DatabaseReference dref;
+    private FirebaseDatabase mBase;
     private FirebaseUser user;
     private FirebaseAuth firebaseAuth;
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    private String places;
 
+    private ListView visitedPlaces;
+    ArrayAdapter<String> adapter;
+    ArrayList<String> list=new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //  setSupportActionBar(toolbar);
 
         Intent intent = getIntent();
         String markerTitle= intent.getExtras().getString("markertitle");
@@ -67,74 +78,98 @@ public class ProfileActivity extends AppCompatActivity {
 
         if(user!=null) {
 
-            String s=user.getUid();
-            dref=FirebaseDatabase.getInstance().getReference("user").child(s);
-            dref.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(final DataSnapshot dataSnapshot) {
+            mBase = FirebaseDatabase.getInstance();
+            dref = mBase.getReference();
 
-                                Korisnik t=dataSnapshot.getValue(Korisnik.class);
+            visitedPlaces = (ListView) findViewById(R.id.visitedPlaces);
+            adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_activated_1, list);
 
-                                TextView Name=(TextView) findViewById(R.id.textViewName);
-                                Name.setText(t.getFirstname());
-                                TextView LastName=(TextView) findViewById(R.id.textViewLastName);
-                                LastName.setText(t.getLastname());
-                                TextView Email=(TextView) findViewById(R.id.textViewEmail);
-                                Email.setText(t.getEmail());
-                                TextView PhoneNumber=(TextView) findViewById(R.id.textViewPhone);
-                                PhoneNumber.setText(t.getPhonenumber());
+            dref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(final DataSnapshot dataSnapshot) {
 
-                                // ZA UCITAVANJE SLIKE U IMAGE_VIEW
+                    Korisnik t = dataSnapshot.child("user").child(user.getUid()).getValue(Korisnik.class);
 
-                                String userID=user.getUid();
+                    places = t.getPlaces();
 
-                                storage = FirebaseStorage.getInstance();
-                                storageRef = storage.getReference();
+                    TextView Name = (TextView) findViewById(R.id.textViewName);
+                    Name.setText(t.getFirstname());
+                    TextView LastName = (TextView) findViewById(R.id.textViewLastName);
+                    LastName.setText(t.getLastname());
+                    TextView Email = (TextView) findViewById(R.id.textViewEmail);
+                    Email.setText(t.getEmail());
+                    TextView PhoneNumber = (TextView) findViewById(R.id.textViewPhone);
+                    PhoneNumber.setText(t.getPhonenumber());
+                    TextView Points = (TextView) findViewById(R.id.textViewPoints);
+                    Points.setText(String.valueOf(t.getScore()));
 
-                                StorageReference sRef = storageRef.child(userID+".jpg");
+                    // ZA UCITAVANJE SLIKE U IMAGE_VIEW
+                    String[] listOfPlaces = places.split("\\,");
 
 
-                                 File localFile=null;
-                                try {
-                                    localFile = File.createTempFile(userID, "jpg");
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+                    for(int i=0;i<listOfPlaces.length;i++) {
 
-                                final File localFile2=localFile;
+                        Spot s=dataSnapshot.child("spot").child(listOfPlaces[i]).getValue(Spot.class);
+                        list.add(s.getHeader());
 
-                                sRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                        // Local temp file has been created
-                                        Bitmap myBitmap = BitmapFactory.decodeFile(localFile2.getAbsolutePath());
-                                        ImageView image=(ImageView) findViewById(R.id.imageView);
-                                        image.setImageBitmap(myBitmap);
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception exception) {
-                                        // Handle any errors
-                                    }
-                                });
+                        visitedPlaces.setAdapter(adapter);
+                        adapter.notifyDataSetChanged();
 
-                               //          GOTOVO
+                    }
 
-                            }
-                            @Override
-                            public void onCancelled(DatabaseError error) {
-                                // Failed to read value
-                                Log.w("Failed to read value.", error.toException());
-                            }
-                        });
+
+                    String userID = user.getUid();
+
+                    storage = FirebaseStorage.getInstance();
+                    storageRef = storage.getReference();
+
+                    StorageReference sRef = storageRef.child(userID + ".jpg");
+
+
+
+                    File localFile = null;
+                    try {
+                        localFile = File.createTempFile(userID, "jpg");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    final File localFile2 = localFile;
+
+                    sRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            // Local temp file has been created
+                            Bitmap myBitmap = BitmapFactory.decodeFile(localFile2.getAbsolutePath());
+                            ImageView image = (ImageView) findViewById(R.id.imageView);
+
+                            int width = 800;
+                            int height = 600;
+                            LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(width, height);
+                            parms.gravity = Gravity.CENTER_HORIZONTAL;
+                            image.setLayoutParams(parms);
+
+                            image.setImageBitmap(myBitmap);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            // Handle any errors
+                        }
+                    });
+
+                    //          GOTOVO
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    // Failed to read value
+                    Log.w("Failed to read value.", error.toException());
+                }
+            });
+
+
         }
-     /*  FloatingActionButton fab = (FloatingActionButton) findViewById(fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
     }
 }

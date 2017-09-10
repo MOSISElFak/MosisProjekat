@@ -1,33 +1,33 @@
 package com.example.marija.mosisproj;
 
-import android.widget.EditText;
-
 import java.util.List;
 
 /**
- * Created by Marija on 8/26/2017.
+ * Created by Marija on 8/16/2017.
  */
 
 class Korisnik {
     public String firstname;
     public String lastname;
     public String phonenumber;
-    public String score;
-    public List<String> friends;
-    public String picture;
+    public Integer score;
+    //  public List<String> friends;
+    //  public String picture;
     public double latitude;
     public double longitude;
     public String email;
-    public String chalengeQuestion;
+    public String places;
 
-    public String getChalengeQuestion() {
-        return chalengeQuestion;
+
+    public void setPlaces(String places) {
+        this.places = places;
     }
 
-    public void setChalengeQuestion(String chalengeQuestion) {
+    public String getPlaces() {
 
-        this.chalengeQuestion = chalengeQuestion;
+        return places;
     }
+
 
     public String getFirstname() {
         return firstname;
@@ -41,17 +41,17 @@ class Korisnik {
         return phonenumber;
     }
 
-    public String getScore() {
+    public Integer getScore() {
         return score;
     }
 
-    public List<String> getFriends() {
-        return friends;
-    }
+//    public List<String> getFriends() {
+//        return friends;
+//    }
 
-    public String getPicture() {
-        return picture;
-    }
+    //   public String getPicture() {
+    //       return picture;
+    //   }
 
     public void setFirstname(String firstname) {
         this.firstname = firstname;
@@ -65,21 +65,21 @@ class Korisnik {
         this.phonenumber = phonenumber;
     }
 
-    public void setScore(String score) {
+    public void setScore(Integer score) {
         this.score = score;
     }
 
-    public void setFriends(List<String> friends) {
-        this.friends = friends;
-    }
+    //   public void setFriends(List<String> friends) {
+    //       this.friends = friends;
+//    }
 
-    public void addFriend(String friend){
-        this.friends.add(friend);
-    }
+//    public void addFriend(String friend){
+//        this.friends.add(friend);
+//    }
 
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
+    //   public void setPicture(String picture) {
+//        this.picture = picture;
+//    }
     public double getLatitude() {
         return latitude;
     }

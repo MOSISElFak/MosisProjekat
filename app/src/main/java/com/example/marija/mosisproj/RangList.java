@@ -19,17 +19,16 @@ import com.google.gson.Gson;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.R.attr.id;
-import static com.example.marija.mosisproj.R.*;
 
 public class RangList extends AppCompatActivity {
 
     DatabaseReference dref;
     ListView listview;
-    ArrayList<String> list=new ArrayList<>();
-    ArrayAdapter<String> adapter;
-    Gson gson=new Gson();
+    RangListAdapter adapter;
+    List<Korisnik> list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,20 +38,18 @@ public class RangList extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         listview=(ListView)findViewById(R.id.listview);
-        adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_activated_1,list);
+        list= new ArrayList<>();
+        adapter=new RangListAdapter(getApplicationContext(),list);
         listview.setAdapter(adapter);
+
         dref=FirebaseDatabase.getInstance().getReference("user");
         dref.orderByChild("score").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                Object korisnik= dataSnapshot.getValue();
-                String json=gson.toJson(korisnik);
-                Korisnik p=gson.fromJson(json,Korisnik.class);
-
-                String value=String.valueOf(p.getFirstname()+" "+p.getLastname()+" "+p.getScore());
-
-                list.add(value);
+                Korisnik p=dataSnapshot.getValue(Korisnik.class);
+                list.add(0,p);
+                listview.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
             }
 
