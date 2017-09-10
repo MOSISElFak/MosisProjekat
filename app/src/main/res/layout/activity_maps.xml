@@ -27,11 +27,6 @@
         android:layout_height="wrap_content"
         android:text="Show users"
         android:id="@+id/btnShowUsers" />
-    <EditText
-        android:id="@+id/editTextDistance"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text" />
 
     <fragment
         android:id="@+id/map"
@@ -46,5 +41,12 @@
         map:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="-125dp" />
+
+    <EditText
+        android:id="@+id/editTextDistance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text" />
+
 
 </android.support.constraint.ConstraintLayout>

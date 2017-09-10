@@ -162,17 +162,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         };
 
         btnFindPath = (FloatingActionButton) findViewById(R.id.floatingActionButton2);
-
-        btnFindPath.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendRequest();
-            }
-        });
-
-
-       btnShowFriend = (Button) findViewById(R.id.btnShowUsers);
-       editTextDistance = (EditText) findViewById(R.id.editTextDistance);
+        btnShowFriend = (Button) findViewById(R.id.btnShowUsers);
+        editTextDistance = (EditText) findViewById(R.id.editTextDistance);
 
         localFile = null;
 
@@ -182,12 +173,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
+
         btnFindPath.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 sendRequest();
             }
         });
+
         btnShowFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
