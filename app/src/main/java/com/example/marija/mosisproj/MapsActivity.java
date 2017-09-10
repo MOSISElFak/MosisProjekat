@@ -17,6 +17,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -86,7 +87,7 @@ import static android.R.id.list;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, DirectionFinderListener {
 
     private GoogleMap mMap;
-    private Button btnFindPath;
+    private FloatingActionButton btnFindPath;
     private Button btnShowFriend;
     private List<Marker> originMarkers = new ArrayList<>();
     private List<Marker> destinationMarkers = new ArrayList<>();
@@ -160,10 +161,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         };
 
+        btnFindPath = (FloatingActionButton) findViewById(R.id.floatingActionButton2);
 
-        btnFindPath = (Button) findViewById(R.id.btnFindPath);
-        btnShowFriend = (Button) findViewById(R.id.btnShowUsers);
-        editTextDistance = (EditText) findViewById(R.id.editTextDistance);
+        btnFindPath.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendRequest();
+            }
+        });
+
+
+       btnShowFriend = (Button) findViewById(R.id.btnShowUsers);
+       editTextDistance = (EditText) findViewById(R.id.editTextDistance);
 
         localFile = null;
 
@@ -358,7 +367,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for (Route route : routes) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
             //((TextView) findViewById(R.id.tvDuration)).setText(route.duration.text);
-            ((TextView) findViewById(R.id.tvDistance)).setText(route.distance.text);
+        //    ((TextView) findViewById(R.id.tvDistance)).setText(route.distance.text);
 
             originMarkers.add(mMap.addMarker(new MarkerOptions()
                     .title(route.startAddress)

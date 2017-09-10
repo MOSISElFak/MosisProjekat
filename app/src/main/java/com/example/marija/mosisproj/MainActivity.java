@@ -30,6 +30,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -46,6 +47,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -70,7 +72,7 @@ public class MainActivity extends AppCompatActivity
     private ListView listview;
     private MyPlacesAdapter adapter;
     private List<Spot> list;
-    private Integer idPlace;
+    private HashMap<Integer, String> markersMap;
 
     Intent intentMyService;
     ComponentName service;
@@ -194,10 +196,6 @@ public class MainActivity extends AppCompatActivity
             Intent profile=new Intent(MainActivity.this.getApplicationContext(),ProfileActivity.class);
             startActivity(profile);
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
         } else if (id == R.id.nav_share) {
 
             startService(new Intent(MainActivity.this.getApplicationContext(), MyService.class));
@@ -319,53 +317,61 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void addPlaces(){
-        idPlace=R.drawable.ic_menu_manage;
+
 
         listview=(ListView)findViewById(R.id.places);
         list= new ArrayList<>();
-        adapter=new MyPlacesAdapter(getApplicationContext(),list,idPlace);
+        adapter=new MyPlacesAdapter(getApplicationContext(),list,R.drawable.ic_menu_slideshow);
         listview.setAdapter(adapter);
 
-        dref= FirebaseDatabase.getInstance().getReference("spot");
-        dref.addChildEventListener(new ChildEventListener() {
+        dref = FirebaseDatabase.getInstance().getReference("spot");
+        dref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Integer i=0;
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    //Getting the data from snapshot
+                    Spot s = postSnapshot.getValue(Spot.class);
 
-                Spot p=dataSnapshot.getValue(Spot.class);
-                list.add(p);
-                listview.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
+                    final String key = postSnapshot.getKey();
+                    if (markersMap == null)
+                        markersMap = new HashMap<Integer, String>();
+                    markersMap.put(i, key);
+
+                    i++;
+
+                    list.add(s);
+                    listview.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+
+                }
             }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Spot s = dataSnapshot.getValue(Spot.class);
-               // String value= s.getFirstname()+" "+s.getLastname() +" "+s.getScore();
-                list.remove(s);
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
+
+
+
+
+    });
+
+        //sredi dinamicko ubacivanje slika
+
+        listview.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+                Intent spotInfo =new Intent(MainActivity.this.getApplicationContext(),SpotInfo.class);
+                ArrayList<Integer> images=new ArrayList<Integer>();
+                images.add(R.drawable.ic_menu_camera);
+                images.add(R.drawable.ic_menu_gallery);
+                spotInfo.putExtra("images",images);
+                spotInfo.putExtra("spot",markersMap.get(position).toString());
+                startActivity(spotInfo);
+            }
         });
 
-
-
     }
-
-
 
     private class MyMainLocalReceiver extends BroadcastReceiver {
         @Override

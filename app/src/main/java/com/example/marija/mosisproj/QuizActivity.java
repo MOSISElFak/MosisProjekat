@@ -68,7 +68,7 @@ public class QuizActivity extends AppCompatActivity {
                 //     brTacnih++;
 
                 String [] datiOdgovori3=odgovor3.split(",");
-                String [] tacniOdgovori3=odgovor3.split(",");
+                String [] tacniOdgovori3=tacanOdg3.split("\\,");
 
                 int pom=0;
                 if(datiOdgovori3.length==tacniOdgovori3.length) {
@@ -83,6 +83,7 @@ public class QuizActivity extends AppCompatActivity {
 
                 Intent QuizResults =new Intent(QuizActivity.this.getApplicationContext(),QuizResultsActivity.class);
                 QuizResults.putExtra("brojTacnih",brTacnih.toString());
+                QuizResults.putExtra("id",ID);
                 startActivity(QuizResults);
 
 
@@ -96,10 +97,8 @@ public class QuizActivity extends AppCompatActivity {
         odgovor3="";
         odgovor1="";
         odgovor2="";
-        odgovor4="";
 
         TextView pom2=(TextView)findViewById(R.id.odgovor2);
-        TextView pom4=(TextView)findViewById(R.id.odgovor4);
 
         if(odg11.isChecked())
             odgovor1=odg11.getText().toString();
@@ -113,7 +112,7 @@ public class QuizActivity extends AppCompatActivity {
             odgovor1="";
 
         odgovor2 = pom2.getText().toString();
-        odgovor4 = pom4.getText().toString();
+
 
 
         if(odg31.isChecked())
@@ -124,10 +123,12 @@ public class QuizActivity extends AppCompatActivity {
             odgovor3=odgovor3+","+odg33.getText().toString();
         else if(odg34.isChecked())
             odgovor3=odgovor3+","+odg34.getText().toString();
+        else
+            odgovor3="";
 
-        odgovor3 = odgovor3.substring(1, odgovor3.length()-1);
+        if(!odgovor3.equals(""))
+            odgovor3 = odgovor3.substring(1, odgovor3.length()-1);
 
-        String s="";
 
     }
     void setQuestion()

@@ -1,7 +1,6 @@
 package com.example.marija.mosisproj;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -23,7 +22,11 @@ public class MyPlacesAdapter extends BaseAdapter {
         public MyPlacesAdapter(Context context, List<Spot> places, Integer id) {
             this.context = context;
             this.places = places;
+
+         //   String uri = "drawable/i" + key+".png";
+         //   id = context.getResources().getIdentifier(uri, null, context.getPackageName());
             this.id=id;
+
         }
 
         @Override
@@ -42,26 +45,18 @@ public class MyPlacesAdapter extends BaseAdapter {
         }
 
         @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, ViewGroup parent) {
 
             View v=View.inflate(context,R.layout.item_places,null);
             TextView ID=(TextView)v.findViewById(R.id.textViewId);
             TextView Header=(TextView)v.findViewById(R.id.textViewHeader);
             ImageView Picture=(ImageView) v.findViewById(R.id.picture);
 
-            ID.setText(Integer.toString(position + 1));
+            ID.setText(Integer.toString(position+1));
             Header.setText(places.get(position).getHeader());
             Picture.setImageResource(id);
 
 
-            v.setOnClickListener(new View.OnClickListener(){
-                      @Override
-                        public void onClick(View v) {
-                            Intent openInfo=new Intent(context,SpotInfo.class);
-                            openInfo.putExtra("spot","Medijana");
-                            context.startActivity(openInfo);
-                        }
-            });
 
             return v;
         }

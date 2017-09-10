@@ -7,16 +7,17 @@ import java.util.List;
  */
 
 class Korisnik {
+    public String email;
     public String firstname;
     public String lastname;
+    public double latitude;
+    public double longitude;
     public String phonenumber;
+    public String places;
     public Integer score;
     //  public List<String> friends;
     //  public String picture;
-    public double latitude;
-    public double longitude;
-    public String email;
-    public String places;
+
 
 
     public void setPlaces(String places) {
