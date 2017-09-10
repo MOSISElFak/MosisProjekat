@@ -63,7 +63,6 @@ public class MyPlacesAdapter extends BaseAdapter {
                         }
             });
 
-
             return v;
         }
     }

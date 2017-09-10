@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity
     private ListView listview;
     private MyPlacesAdapter adapter;
     private List<Spot> list;
-    private Integer id;
+    private Integer idPlace;
 
     Intent intentMyService;
     ComponentName service;
@@ -319,11 +319,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void addPlaces(){
-        id=R.drawable.ic_menu_manage;
+        idPlace=R.drawable.ic_menu_manage;
 
         listview=(ListView)findViewById(R.id.places);
         list= new ArrayList<>();
-        adapter=new MyPlacesAdapter(getApplicationContext(),list,id);
+        adapter=new MyPlacesAdapter(getApplicationContext(),list,idPlace);
         listview.setAdapter(adapter);
 
         dref= FirebaseDatabase.getInstance().getReference("spot");

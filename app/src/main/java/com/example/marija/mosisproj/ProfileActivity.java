@@ -1,6 +1,5 @@
 package com.example.marija.mosisproj;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -68,9 +67,6 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //  setSupportActionBar(toolbar);
-
-        Intent intent = getIntent();
-        String markerTitle= intent.getExtras().getString("markertitle");
 
 
         firebaseAuth = FirebaseAuth.getInstance();

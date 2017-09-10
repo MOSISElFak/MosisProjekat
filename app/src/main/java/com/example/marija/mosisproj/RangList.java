@@ -60,10 +60,10 @@ public class RangList extends AppCompatActivity {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Korisnik korisnik = dataSnapshot.getValue(Korisnik.class);
-                String value= korisnik.getFirstname()+" "+korisnik.getLastname() +" "+korisnik.getScore();
-                list.remove(value);
-                adapter.notifyDataSetChanged();
+                //Korisnik korisnik = dataSnapshot.getValue(Korisnik.class);
+                //String value= korisnik.getFirstname()+" "+korisnik.getLastname() +" "+korisnik.getScore();
+                //list.remove(value);
+                //adapter.notifyDataSetChanged();
             }
 
             @Override
