@@ -121,10 +121,10 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener(){
             public void onClick (View v)
             {
-                Intent intent1 = new Intent(MainActivity.this.getApplicationContext(), ShowChallengesActivity.class);
-                intent1.putExtra("latitude",Double.toString(latitude));
-                intent1.putExtra("longitude",Double.toString(longitude));
-                startActivity(intent1);
+               // Intent intent1 = new Intent(MainActivity.this.getApplicationContext(), ShowChallengesActivity.class);
+               // intent1.putExtra("latitude",Double.toString(latitude));
+              //  intent1.putExtra("longitude",Double.toString(longitude));
+              //  startActivity(intent1);
             }
         });
 
@@ -179,8 +179,20 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.showAllUsers) {
             return true;
+        }
+        else if(id == R.id.showFriends)
+        {
+
+        }
+        else if(id == R.id.showChallenge)
+        {
+            Intent intent1 = new Intent(MainActivity.this.getApplicationContext(), ShowChallengesActivity.class);
+            intent1.putExtra("latitude",Double.toString(latitude));
+            intent1.putExtra("longitude",Double.toString(longitude));
+            startActivity(intent1);
+
         }
 
         return super.onOptionsItemSelected(item);
