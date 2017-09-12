@@ -67,7 +67,7 @@ public class ShowChallengesActivity extends AppCompatActivity implements OnMapRe
                         ChalengeQuestion cq = challenge.getValue(ChalengeQuestion.class);
 
 
-                        final String key = postSnapshot.getKey();
+                        final String key = challenge.getKey();
                         if (markersMap == null)
                             markersMap = new HashMap<String, String>();
                         markersMap.put(cq.getTekst(), key);

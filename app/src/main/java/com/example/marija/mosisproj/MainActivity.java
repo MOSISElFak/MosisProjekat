@@ -78,6 +78,9 @@ public class MainActivity extends AppCompatActivity
     String GPS_FILTER = "com.example.marija.mylocationtracker.LOCATION";
     FloatingActionButton fab;
 
+    private double latitude;
+    private double longitude;
+
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
 
     @Override
@@ -119,6 +122,8 @@ public class MainActivity extends AppCompatActivity
             public void onClick (View v)
             {
                 Intent intent1 = new Intent(MainActivity.this.getApplicationContext(), ShowChallengesActivity.class);
+                intent1.putExtra("latitude",Double.toString(latitude));
+                intent1.putExtra("longitude",Double.toString(longitude));
                 startActivity(intent1);
             }
         });
@@ -381,8 +386,8 @@ public class MainActivity extends AppCompatActivity
     private class MyMainLocalReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            double latitude = intent.getDoubleExtra("latitude", -1);
-            double longitude = intent.getDoubleExtra("longitude", -1);
+            latitude = intent.getDoubleExtra("latitude", -1);
+            longitude = intent.getDoubleExtra("longitude", -1);
             Toast.makeText(getApplicationContext(), String.valueOf(latitude) +  " " + String.valueOf(longitude), Toast.LENGTH_LONG).show();
         }
     }
