@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Display;
@@ -72,6 +73,7 @@ public class MainActivity extends AppCompatActivity
     ComponentName service;
     BroadcastReceiver receiver;
     String GPS_FILTER = "com.example.marija.mylocationtracker.LOCATION";
+    FloatingActionButton fab;
 
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
 
@@ -81,6 +83,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        fab=(FloatingActionButton)findViewById(R.id.fab);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -106,6 +110,14 @@ public class MainActivity extends AppCompatActivity
                 // ...
             }
         };
+
+        fab.setOnClickListener(new View.OnClickListener(){
+            public void onClick (View v)
+            {
+                Intent intent1 = new Intent(MainActivity.this.getApplicationContext(), ShowChallengesActivity.class);
+                startActivity(intent1);
+            }
+        });
 
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();

@@ -39,7 +39,6 @@
             android:divider="#00000000" />
 
 
-        <Button android:id="@+id/show_challenges" />
 
     </LinearLayout>
 
