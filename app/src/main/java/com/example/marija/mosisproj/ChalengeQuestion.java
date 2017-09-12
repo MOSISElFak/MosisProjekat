@@ -9,9 +9,19 @@ public class ChalengeQuestion {
     public String tacanOdgovor;
     public String lat;
     public String lng;
+    public String postDate;
 
 
-    public ChalengeQuestion(String t,String to)
+    public void setPostDate(String postDate) {
+        this.postDate = postDate;
+    }
+
+    public String getPostDate() {
+
+        return postDate;
+    }
+
+    public ChalengeQuestion(String t, String to)
     {
         this.tekst=t;
         this.tacanOdgovor=to;

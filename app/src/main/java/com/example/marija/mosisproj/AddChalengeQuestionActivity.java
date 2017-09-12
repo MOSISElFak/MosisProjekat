@@ -5,7 +5,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.icu.text.DateFormat;
+import android.icu.text.SimpleDateFormat;
+import android.icu.util.Calendar;
+import android.os.Build;
 import android.support.annotation.IdRes;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -21,6 +26,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.Date;
 
 import static com.example.marija.mosisproj.R.id.odgovor2;
 
@@ -56,6 +63,7 @@ public class AddChalengeQuestionActivity extends AppCompatActivity {
                 mDatabase = FirebaseDatabase.getInstance().getReference();
 
                 mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                   @RequiresApi(api = Build.VERSION_CODES.N)
                    @Override
                    public void onDataChange(DataSnapshot dataSnapshot) {
                        Korisnik k = dataSnapshot.child("user").child(user.getUid()).getValue(Korisnik.class);
@@ -71,6 +79,12 @@ public class AddChalengeQuestionActivity extends AppCompatActivity {
 
                        q.setLat(Double.toString(latitude));
                        q.setLng(Double.toString(longitude));
+
+                       DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+                       Date today = Calendar.getInstance().getTime();
+                       String reportDate = df.format(today);
+
+                       q.setPostDate(reportDate);
 
                        mDatabase.child("challenge_questions").child(user.getUid().toString()).push().setValue(q);
 
