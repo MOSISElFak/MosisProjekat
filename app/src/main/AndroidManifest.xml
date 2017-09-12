@@ -80,7 +80,8 @@
         <activity android:name=".BarcodeActivity" />
         <activity android:name=".AddChalengeQuestionActivity" />
         <activity android:name=".UsersProfileActivity" />
-        <activity android:name=".ShowChallengesActivity"></activity>
+        <activity android:name=".ShowChallengesActivity" />
+        <activity android:name=".ChallengeQuestionActivity"></activity>
     </application>
 
 </manifest>
