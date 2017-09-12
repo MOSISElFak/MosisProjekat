@@ -108,13 +108,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Location tasklocation;
     private Location location;
     private static final String TAG = MainActivity.class.getSimpleName();
-    private List<Korisnik> korisnici;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
     private HashMap<String, String> markersMap;
-    private int ipom;
     private BitmapDescriptor icon;
     private DownloadThread d;
 
@@ -126,10 +124,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         public void onReceive(Context context, Intent intent) {
             latitude = intent.getDoubleExtra("latitude", -1);
             longitude = intent.getDoubleExtra("longitude", -1);
-            /*EditText lon = (EditText) findViewById(R.id.lon);
-            EditText lat = (EditText) findViewById(R.id.lat);
-            lon.setText(String.valueOf(longitude));
-            lat.setText(String.valueOf(latitude));*/
             Toast.makeText(getApplicationContext(), "Maps" + String.valueOf(latitude) + " " + String.valueOf(longitude), Toast.LENGTH_LONG).show();
         }
     }
@@ -145,22 +139,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
 
-        mAuth=FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
-                }
-                // ...
-            }
-        };
-
         btnFindPath = (FloatingActionButton) findViewById(R.id.floatingActionButton2);
         btnShowFriend = (Button) findViewById(R.id.btnShowUsers);
         editTextDistance = (EditText) findViewById(R.id.editTextDistance);
@@ -169,6 +147,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         tasklocation = new Location(LocationManager.GPS_PROVIDER);
         location = new Location(LocationManager.GPS_PROVIDER);
+        location.setLongitude(longitude);
+        location.setLatitude(latitude);
 
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
@@ -184,8 +164,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         btnShowFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                location.setLongitude(longitude);
-                location.setLatitude(latitude);
+
                 showFriends();
             }
         });
@@ -199,60 +178,58 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void showFriends() {
 
+        db = FirebaseDatabase.getInstance().getReference("user");
+        db.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mMap.clear();
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    //Getting the data from snapshot
+                    Korisnik k = postSnapshot.getValue(Korisnik.class);
 
-            db = FirebaseDatabase.getInstance().getReference("user");
-            db.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    mMap.clear();
-                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        //Getting the data from snapshot
-                        Korisnik k = postSnapshot.getValue(Korisnik.class);
+                    final String key = postSnapshot.getKey();
+                    if (markersMap == null)
+                        markersMap = new HashMap<String, String>();
+                    markersMap.put(k.getEmail(), key);
 
-                        final String key = postSnapshot.getKey();
-                        if (markersMap == null)
-                            markersMap = new HashMap<String, String>();
-                        markersMap.put(k.getEmail(), key);
+                    tasklocation.setLatitude(k.getLatitude());
+                    tasklocation.setLongitude(k.getLongitude());
 
-                        tasklocation.setLatitude(k.getLatitude());
-                        tasklocation.setLongitude(k.getLongitude());
+                    double distance = location.distanceTo(tasklocation);
 
-                        double distance = location.distanceTo(tasklocation);
+                    double pom = Double.parseDouble(editTextDistance.getText().toString());
 
-                        double pom = Double.parseDouble(editTextDistance.getText().toString());
+                    if (distance < pom) {
 
-                        if (distance < pom) {
+                        String s = markersMap.get(k.getEmail());
+                        d = new DownloadThread(s, k);
+                        d.start();
 
-                            String s = markersMap.get(k.getEmail());
-                            d = new DownloadThread(s, k);
-                            d.start();
-
-                        }
-
-                        try {
-                            d.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
                     }
 
-
+                    try {
+                        d.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                }
-            });
-        }
 
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
 
 
     private void sendRequest() {
         if (latitude != 0 && longitude != 0) {
 
             Intent i = getIntent();
-            dlatitude = Double.parseDouble(getIntent().getStringExtra("latitude"));
-            dlongitude = Double.parseDouble(getIntent().getStringExtra("longitude"));
+        //    dlatitude = Double.parseDouble(getIntent().getStringExtra("latitude"));
+         //   dlongitude = Double.parseDouble(getIntent().getStringExtra("longitude"));
 
             String origin = Double.toString(latitude) + "," + Double.toString(longitude);
             String destination = Double.toString(dlatitude) + "," + Double.toString(dlongitude);
@@ -304,8 +281,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     markersMap.put(k.getEmail(), key);
 
 
-                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
-                    {
+                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 
                         @Override
                         public boolean onMarkerClick(Marker marker) {
@@ -323,9 +299,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     });
 
 
-                        String s = markersMap.get(k.getEmail());
-                        d = new DownloadThread(s, k);
-                        d.start();
+                    String s = markersMap.get(k.getEmail());
+                    d = new DownloadThread(s, k);
+                    d.start();
 
 
                     try {
@@ -378,8 +354,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         for (Route route : routes) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
-            //((TextView) findViewById(R.id.tvDuration)).setText(route.duration.text);
-        //    ((TextView) findViewById(R.id.tvDistance)).setText(route.distance.text);
 
             originMarkers.add(mMap.addMarker(new MarkerOptions()
                     .title(route.startAddress)
@@ -399,6 +373,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             polylinePaths.add(mMap.addPolyline(polylineOptions));
         }
     }
+
 
 
     public class DownloadThread extends Thread {
@@ -465,10 +440,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 .icon(icon);
 
 
-
                         Marker mMarker = mMap.addMarker(markerOptions);
 
-                        // onMarkerClick
 
                     }
 
@@ -482,4 +455,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         }
-    }
+}

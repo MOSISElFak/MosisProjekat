@@ -108,7 +108,7 @@ public class MyService extends Service {
 
         public void callBroadcastReceiver(){
             Intent myFilteredResponse = new
-                    Intent("com.example.nemanja.mylocationtracker.LOCATION");
+                    Intent("com.example.marija.mylocationtracker.LOCATION");
             myFilteredResponse.putExtra("latitude", currLocation.getLatitude());
             myFilteredResponse.putExtra("longitude", currLocation.getLongitude());
 
