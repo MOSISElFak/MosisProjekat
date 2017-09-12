@@ -1,8 +1,10 @@
 package com.example.marija.mosisproj;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,6 +31,11 @@ public class AddChalengeQuestionActivity extends AppCompatActivity {
     double longitude;
 
 
+    Intent intentMyService;
+    ComponentName service;
+    BroadcastReceiver receiver;
+    String GPS_FILTER = "com.example.nemanja.mylocationtracker.LOCATION";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,50 +49,53 @@ public class AddChalengeQuestionActivity extends AppCompatActivity {
         final EditText questionText = (EditText) findViewById(R.id.question_text);
 
 
+
         addQuestion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                String answer=questionAnswer.getText().toString();
-                String question=questionText.getText().toString();
-
-
-                ChalengeQuestion q = new ChalengeQuestion(question, answer);
-
-
                 user = FirebaseAuth.getInstance().getCurrentUser();
 
-                DatabaseReference mDatabase;
+                final DatabaseReference mDatabase;
 
                 mDatabase = FirebaseDatabase.getInstance().getReference();
 
-                mDatabase.child("user").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                      Korisnik k=dataSnapshot.getValue(Korisnik.class);
+                mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                   @Override
+                   public void onDataChange(DataSnapshot dataSnapshot) {
+                       Korisnik k = dataSnapshot.child("user").child(user.getUid()).getValue(Korisnik.class);
 
-                        latitude=k.getLatitude();
-                        longitude=k.getLongitude();
-                    }
+                       latitude = k.getLatitude();
+                       longitude = k.getLongitude();
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        System.out.println("The read failed: " + databaseError.getCode());
-                    }
-                });
-
-                String s=Double.toString(latitude);
-
-                q.setLat(Double.toString(latitude));
-                q.setLng(Double.toString(longitude));
-
-                mDatabase.child("challenge_questions").child(user.getUid().toString()).push().setValue(q);
+                       String answer = questionAnswer.getText().toString();
+                       String question = questionText.getText().toString();
 
 
-                Toast.makeText(AddChalengeQuestionActivity.this, "Uspesno ste dodali pitanje", Toast.LENGTH_SHORT).show();
+                       ChalengeQuestion q = new ChalengeQuestion(question, answer);
+
+                       q.setLat(Double.toString(latitude));
+                       q.setLng(Double.toString(longitude));
+
+                       mDatabase.child("challenge_questions").child(user.getUid().toString()).push().setValue(q);
+
+
+                       Toast.makeText(AddChalengeQuestionActivity.this, "Uspesno ste dodali pitanje", Toast.LENGTH_SHORT).show();
+
+                       startActivity(new Intent(AddChalengeQuestionActivity.this, MainActivity.class));
+                   }
+
+                   @Override
+                   public void onCancelled(DatabaseError databaseError) {
+
+                   }
+               }) ;
+
+
 
             }
         });
+
     }
 
 

@@ -312,9 +312,6 @@ public class MainActivity extends AppCompatActivity
 
     private void addPlaces(){
 
-
-
-
         listview=(ListView)findViewById(R.id.places);
         list= new ArrayList<>();
         adapter=new MyPlacesAdapter(getApplicationContext(),list,R.drawable.ic_menu_slideshow);
@@ -379,50 +376,5 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(getApplicationContext(), String.valueOf(latitude) +  " " + String.valueOf(longitude), Toast.LENGTH_LONG).show();
         }
     }
-
-    /*private void scaleBitmap(){
-        Resources res =MainActivity.this.getResources();
-        int id = R.drawable.nt;
-        Bitmap myBitmap = BitmapFactory.decodeResource(res,id);
-        int width = myBitmap.getWidth();
-        int height = myBitmap.getHeight();
-
-
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int widthScreen = size.x;
-        int heightScreen = size.y;
-
-        float odnos=widthScreen/width;
-        int maxWidth= width*Math.round(odnos);
-        int maxHeight=heightScreen;
-
-
-
-        Log.v("Pictures", "Width and height are " + width + "--" + height);
-
-        if (width > height) {
-            // landscape
-            float ratio = (float) width / maxWidth;
-            width = maxWidth;
-            height = (int)(height / ratio);
-        } else if (height > width) {
-            // portrait
-            float ratio = (float) height / maxHeight;
-            height = maxHeight;
-            width = (int)(width / ratio);
-        } else {
-            // square
-            height = maxHeight;
-            width = maxWidth;
-        }
-
-        Bitmap myScaledBitmap=Bitmap.createScaledBitmap(myBitmap,width,height,false);
-
-        ImageView i=(ImageView) findViewById(R.id.imageView5);
-        i.setImageBitmap(myScaledBitmap);
-    }*/
-
 
 }

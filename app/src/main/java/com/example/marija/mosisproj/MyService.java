@@ -38,14 +38,8 @@ public class MyService extends Service {
     private LocationManager mLocationManager = null;
     private static final int LOCATION_INTERVAL = 1000;
     private static final float LOCATION_DISTANCE = 5f;
-    private int mNotificationId = 001;
     private NotificationCompat.Builder mBuilder;
     private NotificationManager mNotifyMgr;
-
-    Integer Medijana=2;
-    Integer niska_tvrdjava=3;
-
-
 
 
     DatabaseReference dref;
@@ -104,10 +98,9 @@ public class MyService extends Service {
                                 PendingIntent.FLAG_UPDATE_CURRENT
                         );
                 mBuilder.setContentIntent(resultPendingIntent);
-                if(distance<=5000.00){
+                if(distance<=50000.00)
                     mNotifyMgr.notify(keyNotificationMap.get(s.getHeader()), mBuilder.build());
-                    mNotificationId++;
-                }
+
                 i++;
             }
 
@@ -141,8 +134,7 @@ public class MyService extends Service {
         }
     }
 
-    // LocationListener GPSListener;
-    //LocationListener NetworkListener;
+
     LocationListener GPSListener =  new LocationListener(LocationManager.GPS_PROVIDER);
     LocationListener NetworkListener =  new LocationListener(LocationManager.NETWORK_PROVIDER);
     public MyService() {
@@ -151,19 +143,18 @@ public class MyService extends Service {
         keyNotificationMap=new HashMap<String, Integer>();
         dref= FirebaseDatabase.getInstance().getReference("spot");
         dref.addListenerForSingleValueEvent(new ValueEventListener() {
+            int i=0;
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 Log.e("Count " ,""+snapshot.getChildrenCount());
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                     Spot spot1 = postSnapshot.getValue(Spot.class);
+                    keyValueMap.put(spot1.getHeader(),postSnapshot.getKey());
+                    keyNotificationMap.put(spot1.getHeader(),i);
+                    i++;
+
                     list.add(spot1);
 
-                    switch (spot1.getHeader()){
-                        case "Medijana": keyValueMap.put(spot1.getHeader(),"Medijana");
-                            keyNotificationMap.put(spot1.getHeader(),Medijana); break;
-                        case "Niška tvrđava": keyValueMap.put(spot1.getHeader(),"niska_tvrdjava");
-                            keyNotificationMap.put(spot1.getHeader(),niska_tvrdjava); break;
-                    }
                     Log.e("Get Data", spot1.getHeader());
                 }
             }
