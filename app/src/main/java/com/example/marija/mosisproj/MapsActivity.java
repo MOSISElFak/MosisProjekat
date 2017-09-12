@@ -228,8 +228,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (latitude != 0 && longitude != 0) {
 
             Intent i = getIntent();
-        //    dlatitude = Double.parseDouble(getIntent().getStringExtra("latitude"));
-         //   dlongitude = Double.parseDouble(getIntent().getStringExtra("longitude"));
 
             String origin = Double.toString(latitude) + "," + Double.toString(longitude);
             String destination = Double.toString(dlatitude) + "," + Double.toString(dlongitude);

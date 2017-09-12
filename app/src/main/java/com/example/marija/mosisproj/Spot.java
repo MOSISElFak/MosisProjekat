@@ -1,8 +1,6 @@
 package com.example.marija.mosisproj;
 
-/**
- * Created by Nemanja on 8/17/2017.
- */
+
 
 public class Spot {
     private double longitude;

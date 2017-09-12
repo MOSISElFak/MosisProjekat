@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity
     Intent intentMyService;
     ComponentName service;
     BroadcastReceiver receiver;
-    String GPS_FILTER = "com.example.nemanja.mylocationtracker.LOCATION";
+    String GPS_FILTER = "com.example.marija.mylocationtracker.LOCATION";
 
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
 

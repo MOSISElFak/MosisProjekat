@@ -31,11 +31,6 @@ public class AddChalengeQuestionActivity extends AppCompatActivity {
     double longitude;
 
 
-    Intent intentMyService;
-    ComponentName service;
-    BroadcastReceiver receiver;
-    String GPS_FILTER = "com.example.nemanja.mylocationtracker.LOCATION";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
