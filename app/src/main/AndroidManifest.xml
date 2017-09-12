@@ -79,7 +79,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".BarcodeActivity" />
         <activity android:name=".AddChalengeQuestionActivity" />
-        <activity android:name=".UsersProfileActivity"></activity>
+        <activity android:name=".UsersProfileActivity" />
+        <activity android:name=".ShowChallengesActivity"></activity>
     </application>
 
 </manifest>

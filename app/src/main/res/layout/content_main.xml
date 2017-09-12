@@ -38,6 +38,9 @@
             android:layout_height="match_parent"
             android:divider="#00000000" />
 
+
+        <Button android:id="@+id/show_challenges" />
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
