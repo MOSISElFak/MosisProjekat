@@ -68,6 +68,9 @@ public class MainActivity extends AppCompatActivity
     MyPlacesAdapter adapter;
     List<Spot> list;
     private HashMap<Integer, String> markersMap;
+    private Integer i=0;
+    private ArrayList<String> imagekey;
+
 
     Intent intentMyService;
     ComponentName service;
@@ -94,6 +97,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
 
         mAuth= FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -326,14 +330,14 @@ public class MainActivity extends AppCompatActivity
 
         listview=(ListView)findViewById(R.id.places);
         list= new ArrayList<>();
-        adapter=new MyPlacesAdapter(getApplicationContext(),list,R.drawable.ic_menu_slideshow);
-        listview.setAdapter(adapter);
+        imagekey=new ArrayList<>();
+
 
         dref = FirebaseDatabase.getInstance().getReference("spot");
         dref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Integer i=0;
+
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     //Getting the data from snapshot
                     Spot s = postSnapshot.getValue(Spot.class);
@@ -342,12 +346,12 @@ public class MainActivity extends AppCompatActivity
                     if (markersMap == null)
                         markersMap = new HashMap<Integer, String>();
                     markersMap.put(i, key);
-
-                    i++;
-
+                    imagekey.add(key+"1.jpg");
                     list.add(s);
+
+                    adapter=new MyPlacesAdapter(getApplicationContext(),list,imagekey);
                     listview.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
+                    i++;
 
                 }
             }
@@ -359,15 +363,13 @@ public class MainActivity extends AppCompatActivity
 
     });
 
-        //sredi dinamicko ubacivanje slika
-
         listview.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent spotInfo =new Intent(MainActivity.this.getApplicationContext(),SpotInfo.class);
-                ArrayList<Integer> images=new ArrayList<Integer>();
-                images.add(R.drawable.ic_menu_camera);
-                images.add(R.drawable.ic_menu_gallery);
+                ArrayList<String> images=new ArrayList<String>();
+                images.add(markersMap.get(position)+"1.jpg");
+                images.add(markersMap.get(position)+"2.jpg");
                 spotInfo.putExtra("images",images);
                 spotInfo.putExtra("spot",markersMap.get(position).toString());
                 startActivity(spotInfo);
@@ -381,10 +383,6 @@ public class MainActivity extends AppCompatActivity
         public void onReceive(Context context, Intent intent) {
             double latitude = intent.getDoubleExtra("latitude", -1);
             double longitude = intent.getDoubleExtra("longitude", -1);
-            /*EditText lon = (EditText) findViewById(R.id.lon);
-            EditText lat = (EditText) findViewById(R.id.lat);
-            lon.setText(String.valueOf(longitude));
-            lat.setText(String.valueOf(latitude));*/
             Toast.makeText(getApplicationContext(), String.valueOf(latitude) +  " " + String.valueOf(longitude), Toast.LENGTH_LONG).show();
         }
     }

@@ -42,7 +42,7 @@ public class SpotInfo extends AppCompatActivity {
 
 
 
-        ArrayList<Integer> images = getIntent().getIntegerArrayListExtra("images");
+        ArrayList<String> images = getIntent().getStringArrayListExtra("images");
 
         viewPager = (ViewPager) findViewById(R.id.imageViewSlider);
         sliderDotspanel=(LinearLayout)findViewById(R.id.SliderDots);

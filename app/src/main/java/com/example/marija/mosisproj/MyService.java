@@ -42,6 +42,7 @@ public class MyService extends Service {
     private NotificationManager mNotifyMgr;
 
 
+
     DatabaseReference dref;
     ArrayList<Spot> list;
     HashMap<String,String> keyValueMap;
@@ -89,6 +90,11 @@ public class MyService extends Service {
 
                 mBuilder.setContentText("Nalazite se blizu lokacije - "+s.getHeader()+"!");
                 Intent resultIntent = new Intent(MyService.this.getApplicationContext(), SpotInfo.class);
+                ArrayList<Integer> images=new ArrayList<Integer>();
+                //dinamicki ubaci slike
+                images.add(R.drawable.ic_menu_camera);
+                images.add(R.drawable.ic_menu_gallery);
+                resultIntent.putExtra("images",images);
                 resultIntent.putExtra("spot",String.valueOf(keyValueMap.get(s.getHeader())));
                 PendingIntent resultPendingIntent =
                         PendingIntent.getActivity(
@@ -98,8 +104,9 @@ public class MyService extends Service {
                                 PendingIntent.FLAG_UPDATE_CURRENT
                         );
                 mBuilder.setContentIntent(resultPendingIntent);
-                if(distance<=50000.00)
+                if(distance<=50000.00) {
                     mNotifyMgr.notify(keyNotificationMap.get(s.getHeader()), mBuilder.build());
+                }
 
                 i++;
             }

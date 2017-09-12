@@ -10,6 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import java.util.ArrayList;
 
 /**
@@ -21,9 +26,9 @@ public class ViewPagerAdapter extends PagerAdapter {
 
     private Context context;
     private LayoutInflater layoutInflater;
-    private ArrayList<Integer> images;
+    private ArrayList<String> images;
 
-    public ViewPagerAdapter(Context context, ArrayList<Integer> images) {
+    public ViewPagerAdapter(Context context, ArrayList<String> images) {
         this.context = context;
         this.images = images;
     }
@@ -44,7 +49,15 @@ public class ViewPagerAdapter extends PagerAdapter {
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = layoutInflater.inflate(R.layout.slider_layout, null);
         ImageView imageView = (ImageView) view.findViewById(R.id.imageViewSlideItem);
-        imageView.setImageResource(images.get(position));
+
+        StorageReference storageRef;
+        storageRef = FirebaseStorage.getInstance().getReference().child(images.get(position));
+
+        Glide.with(context)
+                .using(new FirebaseImageLoader())
+                .load(storageRef)
+                .into(imageView);
+
 
         ViewPager vp=(ViewPager) container;
         vp.addView(view,0);

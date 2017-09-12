@@ -7,6 +7,12 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,15 +23,12 @@ public class MyPlacesAdapter extends BaseAdapter {
 
         private Context context;
         private List<Spot> places;
-        private int id;
+        private ArrayList<String> images;
 
-        public MyPlacesAdapter(Context context, List<Spot> places, Integer id) {
+        public MyPlacesAdapter(Context context, List<Spot> places, ArrayList<String> images) {
             this.context = context;
             this.places = places;
-
-         //   String uri = "drawable/i" + key+".png";
-         //   id = context.getResources().getIdentifier(uri, null, context.getPackageName());
-            this.id=id;
+            this.images=images;
 
         }
 
@@ -54,8 +57,18 @@ public class MyPlacesAdapter extends BaseAdapter {
 
             ID.setText(Integer.toString(position+1));
             Header.setText(places.get(position).getHeader());
-            Picture.setImageResource(id);
 
+
+            StorageReference storageRef;
+            storageRef = FirebaseStorage.getInstance().getReference().child(images.get(position));
+
+
+
+
+          Glide.with(context)
+                 .using(new FirebaseImageLoader())
+                  .load(storageRef)
+                   .into(Picture);
 
 
             return v;
