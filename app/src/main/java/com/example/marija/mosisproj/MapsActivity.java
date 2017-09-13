@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -21,6 +22,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -88,33 +90,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private FloatingActionButton btnFindPath;
-    private Button btnShowFriend;
     private List<Marker> originMarkers = new ArrayList<>();
     private List<Marker> destinationMarkers = new ArrayList<>();
     private List<Polyline> polylinePaths = new ArrayList<>();
     private ProgressDialog progressDialog;
     private double latitude;
     private double longitude;
-    private DatabaseReference db;
-    private EditText editTextDistance;
-
-    private StorageReference storageRef;
-    private FirebaseStorage storage;
-    private File localFile;
 
     private double dlatitude;
     private double dlongitude;
 
-    private Location tasklocation;
-    private Location location;
+
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-
-    private HashMap<String, String> markersMap;
-    private BitmapDescriptor icon;
-    private DownloadThread d;
 
     BroadcastReceiver receiver;
     String GPS_FILTER = "com.example.marija.mylocationtracker.LOCATION";
@@ -140,18 +127,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         btnFindPath = (FloatingActionButton) findViewById(R.id.floatingActionButton2);
-        btnShowFriend = (Button) findViewById(R.id.btnShowUsers);
-        editTextDistance = (EditText) findViewById(R.id.editTextDistance);
 
-        localFile = null;
 
-        tasklocation = new Location(LocationManager.GPS_PROVIDER);
-        location = new Location(LocationManager.GPS_PROVIDER);
-        location.setLongitude(longitude);
-        location.setLatitude(latitude);
 
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReference();
 
 
         btnFindPath.setOnClickListener(new View.OnClickListener() {
@@ -161,13 +139,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        btnShowFriend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                showFriends();
-            }
-        });
 
         IntentFilter mainFilter = new IntentFilter(GPS_FILTER);
         receiver = new MyMainLocalReceiver();
@@ -176,52 +147,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private void showFriends() {
-
-        db = FirebaseDatabase.getInstance().getReference("user");
-        db.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mMap.clear();
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    //Getting the data from snapshot
-                    Korisnik k = postSnapshot.getValue(Korisnik.class);
-
-                    final String key = postSnapshot.getKey();
-                    if (markersMap == null)
-                        markersMap = new HashMap<String, String>();
-                    markersMap.put(k.getEmail(), key);
-
-                    tasklocation.setLatitude(k.getLatitude());
-                    tasklocation.setLongitude(k.getLongitude());
-
-                    double distance = location.distanceTo(tasklocation);
-
-                    double pom = Double.parseDouble(editTextDistance.getText().toString());
-
-                    if (distance < pom) {
-
-                        String s = markersMap.get(k.getEmail());
-                        d = new DownloadThread(s, k);
-                        d.start();
-
-                    }
-
-                    try {
-                        d.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-    }
 
 
     private void sendRequest() {
@@ -263,61 +188,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         mMap.setMyLocationEnabled(true);
 
-
-        db = FirebaseDatabase.getInstance().getReference("user");
-        db.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mMap.clear();
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    //Getting the data from snapshot
-                    Korisnik k = postSnapshot.getValue(Korisnik.class);
-
-                    final String key = postSnapshot.getKey();
-                    if (markersMap == null)
-                        markersMap = new HashMap<String, String>();
-                    markersMap.put(k.getEmail(), key);
-
-
-                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
-                        @Override
-                        public boolean onMarkerClick(Marker marker) {
-                            // if marker source is clicked
-                            //   Toast.makeText(MapsActivity.this, marker.getTitle(), Toast.LENGTH_SHORT).show();// display toast
-
-                            Intent intent1 = new Intent(MapsActivity.this.getApplicationContext(), UsersProfileActivity.class);
-                            String kljuc = markersMap.get(marker.getSnippet());
-                            intent1.putExtra("kljuc", kljuc);
-                            startActivity(intent1);
-                            return true;
-
-
-                        }
-                    });
-
-
-                    String s = markersMap.get(k.getEmail());
-                    d = new DownloadThread(s, k);
-                    d.start();
-
-
-                    try {
-                        d.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
     }
-
 
     @Override
     public void onDirectionFinderStart() {
@@ -353,6 +224,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for (Route route : routes) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
 
+
+
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(MapsActivity.this);
+            builder1.setMessage("Destinacija je udaljena "+route.distance.text);
+            builder1.setCancelable(true);
+
+            builder1.setPositiveButton("Continue",
+                    new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // TODO Auto-generated method stub
+                        }
+                    });
+
+
+            AlertDialog alert11 = builder1.create();
+            alert11.show();
+
             originMarkers.add(mMap.addMarker(new MarkerOptions()
                     .title(route.startAddress)
                     .position(route.startLocation)));
@@ -372,85 +262,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-
-
-    public class DownloadThread extends Thread {
-        public String url;
-        public Korisnik k;
-
-        public DownloadThread(String url, Korisnik k) {
-            this.url = url;
-            this.k=k;
-        }
-
-        @Override
-        public void run() {
-            super.run();
-
-                File f=null;
-                StorageReference storageReference=storageRef.child(url + ".jpg");
-                try {
-                    f = File.createTempFile(url, "jpg");
-                }
-                catch (Exception e){
-
-                }
-                final File f2=f;
-
-                storageReference.getFile(f).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                        // Local temp file has been created
-
-                        Bitmap myBitmap = BitmapFactory.decodeFile(f2.getAbsolutePath());
-                        int width = myBitmap.getWidth();
-                        int height = myBitmap.getHeight();
-
-                        int maxWidth = 200;
-                        int maxHeight = 200;
-
-                        Log.v("Pictures", "Width and height are " + width + "--" + height);
-
-                        if (width > height) {
-                            // landscape
-                            float ratio = (float) width / maxWidth;
-                            width = maxWidth;
-                            height = (int) (height / ratio);
-                        } else if (height > width) {
-                            // portrait
-                            float ratio = (float) height / maxHeight;
-                            height = maxHeight;
-                            width = (int) (width / ratio);
-                        } else {
-                            // square
-                            height = maxHeight;
-                            width = maxWidth;
-                        }
-
-                        Bitmap myScaledBitmap = Bitmap.createScaledBitmap(myBitmap, width, height, false);
-                        icon = BitmapDescriptorFactory.fromBitmap(myScaledBitmap);
-
-                        LatLng position=new LatLng(k.getLatitude(),k.getLongitude());
-
-                        MarkerOptions markerOptions = new MarkerOptions().position(position)
-                                .title(k.getFirstname() + ' ' + k.getLastname())
-                                .snippet(k.getEmail())
-                                .icon(icon);
-
-
-                        Marker mMarker = mMap.addMarker(markerOptions);
-
-
-                    }
-
-
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle any errors
-                    }
-                });
-            }
-
-        }
 }

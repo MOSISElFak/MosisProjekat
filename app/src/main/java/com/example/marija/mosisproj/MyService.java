@@ -90,10 +90,10 @@ public class MyService extends Service {
 
                 mBuilder.setContentText("Nalazite se blizu lokacije - "+s.getHeader()+"!");
                 Intent resultIntent = new Intent(MyService.this.getApplicationContext(), SpotInfo.class);
-                ArrayList<Integer> images=new ArrayList<Integer>();
+                ArrayList<String> images=new ArrayList<String>();
                 //dinamicki ubaci slike
-                images.add(R.drawable.ic_menu_camera);
-                images.add(R.drawable.ic_menu_gallery);
+                images.add(String.valueOf(keyValueMap.get(s.getHeader()))+"1.jpg");
+                images.add(String.valueOf(keyValueMap.get(s.getHeader()))+"2.jpg");
                 resultIntent.putExtra("images",images);
                 resultIntent.putExtra("spot",String.valueOf(keyValueMap.get(s.getHeader())));
                 PendingIntent resultPendingIntent =

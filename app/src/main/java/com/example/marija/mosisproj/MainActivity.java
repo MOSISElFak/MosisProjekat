@@ -11,6 +11,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +31,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -128,6 +132,21 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+
+   /*     btnFindPath = (FloatingActionButton) findViewById(R.id.floatingActionButton2);
+        btnShowFriend = (Button) findViewById(R.id.btnShowUsers);
+        editTextDistance = (EditText) findViewById(R.id.editTextDistance);
+
+        localFile = null;
+
+        tasklocation = new Location(LocationManager.GPS_PROVIDER);
+        location = new Location(LocationManager.GPS_PROVIDER);
+        location.setLongitude(longitude);
+        location.setLatitude(latitude);*/
+
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
         try {
@@ -178,22 +197,29 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        Intent intent1 = new Intent(MainActivity.this.getApplicationContext(), ShowChallengesActivity.class);
+        intent1.putExtra("latitude",Double.toString(latitude));
+        intent1.putExtra("longitude",Double.toString(longitude));
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.showAllUsers) {
-            return true;
+            intent1.putExtra("tip","1");
+
         }
         else if(id == R.id.showFriends)
         {
+            intent1.putExtra("tip","2");
 
         }
         else if(id == R.id.showChallenge)
         {
-            Intent intent1 = new Intent(MainActivity.this.getApplicationContext(), ShowChallengesActivity.class);
-            intent1.putExtra("latitude",Double.toString(latitude));
-            intent1.putExtra("longitude",Double.toString(longitude));
-            startActivity(intent1);
+
+            intent1.putExtra("tip","3");
+
 
         }
+
+        startActivity(intent1);
 
         return super.onOptionsItemSelected(item);
     }
@@ -213,11 +239,7 @@ public class MainActivity extends AppCompatActivity
             Intent profile=new Intent(MainActivity.this.getApplicationContext(),ProfileActivity.class);
             startActivity(profile);
 
-        } /*else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        }*/ else if (id == R.id.nav_share) {
+        }  else if (id == R.id.nav_share) {
 
             startService(new Intent(MainActivity.this.getApplicationContext(), MyService.class));
             Toast toast = Toast.makeText(getApplicationContext(), "Uključili ste notifikacije!", Toast.LENGTH_SHORT);
