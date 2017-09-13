@@ -81,7 +81,8 @@
         <activity android:name=".AddChalengeQuestionActivity" />
         <activity android:name=".UsersProfileActivity" />
         <activity android:name=".ShowChallengesActivity" />
-        <activity android:name=".ChallengeQuestionActivity"></activity>
+        <activity android:name=".ChallengeQuestionActivity" />
+        <activity android:name=".AddSpotActivity"></activity>
     </application>
 
 </manifest>

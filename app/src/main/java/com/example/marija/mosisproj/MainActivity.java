@@ -121,10 +121,10 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener(){
             public void onClick (View v)
             {
-               // Intent intent1 = new Intent(MainActivity.this.getApplicationContext(), ShowChallengesActivity.class);
+                Intent intent1 = new Intent(MainActivity.this.getApplicationContext(), AddSpotActivity.class);
                // intent1.putExtra("latitude",Double.toString(latitude));
               //  intent1.putExtra("longitude",Double.toString(longitude));
-              //  startActivity(intent1);
+                startActivity(intent1);
             }
         });
 
