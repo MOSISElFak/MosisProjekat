@@ -350,6 +350,8 @@ public class MainActivity extends AppCompatActivity
         imagekey=new ArrayList<>();
 
 
+        adapter=new MyPlacesAdapter(getApplicationContext(),list,imagekey);
+
         dref = FirebaseDatabase.getInstance().getReference("spot");
         dref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -366,8 +368,8 @@ public class MainActivity extends AppCompatActivity
                     imagekey.add(key+"1.jpg");
                     list.add(s);
 
-                    adapter=new MyPlacesAdapter(getApplicationContext(),list,imagekey);
                     listview.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
                     i++;
 
                 }
