@@ -31,6 +31,7 @@ public class ShowChallengesActivity extends AppCompatActivity implements OnMapRe
     private double latitude;
     MarkerOptions centerOptions;
     private Gson gson;
+    private ChalengeQuestion cq;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +73,7 @@ public class ShowChallengesActivity extends AppCompatActivity implements OnMapRe
 
                         Object  x= challenge.getValue();
                         String json=gson.toJson(x);
-                        ChalengeQuestion cq=gson.fromJson(json,ChalengeQuestion.class);
+                        cq=gson.fromJson(json,ChalengeQuestion.class);
 
 
                         LatLng cqLatLng = new LatLng(Double.parseDouble(cq.getLat()), Double.parseDouble(cq.getLng()));
@@ -82,24 +83,27 @@ public class ShowChallengesActivity extends AppCompatActivity implements OnMapRe
                         mMap.addMarker(cqOptions);
 
 
-                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 
-                            @Override
-                            public boolean onMarkerClick(Marker marker) {
-                                // if marker source is clicked
-                                //   Toast.makeText(MapsActivity.this, marker.getTitle(), Toast.LENGTH_SHORT).show();// display toast
-
-                                Intent intent = new Intent(ShowChallengesActivity.this.getApplicationContext(), ChallengeQuestionActivity.class);
-                                // String kljuc = markersMap.get(marker.getSnippet());
-                                // intent1.putExtra("kljuc", kljuc);
-                                startActivity(intent);
-                                return true;
-
-
-                            }
-                        });
 
                     }
+
+                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+                        @Override
+                        public boolean onMarkerClick(Marker marker) {
+                            // if marker source is clicked
+                            //   Toast.makeText(MapsActivity.this, marker.getTitle(), Toast.LENGTH_SHORT).show();// display toast
+
+                            Intent intent = new Intent(ShowChallengesActivity.this.getApplicationContext(), ChallengeQuestionActivity.class);
+                            String pitanje = cq.getTekst();
+                            String tacanOdgovor=cq.getTacanOdgovor();
+                            intent.putExtra("pitanje", pitanje);
+                            intent.putExtra("tacanOdgovor",tacanOdgovor);
+                            startActivity(intent);
+                            return true;
+
+                        }
+                    });
                 }
                 mMap.addMarker(centerOptions);
             }
