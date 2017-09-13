@@ -3,11 +3,17 @@ package com.example.marija.mosisproj;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -47,17 +53,17 @@ public class ShowChallengesActivity extends AppCompatActivity implements OnMapRe
     private Gson gson;
     private ChalengeQuestion cq;
 
- //   private FirebaseAuth mAuth;
-//    private FirebaseAuth.AuthStateListener mAuthListener;
-    // private Location tasklocation;
-    // private Location location;
+    private Location tasklocation;
+    private Location location;
 
     private StorageReference storageRef;
     private FirebaseStorage storage;
 
     private HashMap<String, String> markersMap;
+    private HashMap<Marker, String> mHashMap ;
     private BitmapDescriptor icon;
     private DownloadThread d;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,10 +83,10 @@ public class ShowChallengesActivity extends AppCompatActivity implements OnMapRe
         storageRef = storage.getReference();
 
 
-        // tasklocation = new Location(LocationManager.GPS_PROVIDER);
-        // location = new Location(LocationManager.GPS_PROVIDER);
-        // location.setLongitude(longitude);
-        // location.setLatitude(latitude);
+         tasklocation = new Location(LocationManager.GPS_PROVIDER);
+         location = new Location(LocationManager.GPS_PROVIDER);
+         location.setLongitude(longitude);
+         location.setLatitude(latitude);
 
 
        /* btnShowFriend.setOnClickListener(new View.OnClickListener() {
@@ -115,6 +121,7 @@ public class ShowChallengesActivity extends AppCompatActivity implements OnMapRe
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     mMap.clear();
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        mHashMap = new HashMap<Marker, String>();
                         for (DataSnapshot challenge : postSnapshot.getChildren()) {
                             //Getting the data from snapshot
 
@@ -122,44 +129,69 @@ public class ShowChallengesActivity extends AppCompatActivity implements OnMapRe
                             String json = gson.toJson(x);
                             cq = gson.fromJson(json, ChalengeQuestion.class);
 
-
                             LatLng cqLatLng = new LatLng(Double.parseDouble(cq.getLat()), Double.parseDouble(cq.getLng()));
 
-                            MarkerOptions cqOptions = new MarkerOptions().position(cqLatLng)
+                            MarkerOptions cqOptions = new MarkerOptions()
+                                    .position(cqLatLng)
+                                    .title(cq.getTekst())
+                                    .snippet(cq.getLat() + "," + cq.getLng())
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
-                            mMap.addMarker(cqOptions);
+
+                            Marker marker = mMap.addMarker(cqOptions);
 
 
+                            mHashMap.put(marker, cq.getTacanOdgovor());
+
+                            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+                                @Override
+                                public boolean onMarkerClick(Marker marker) {
+                                    marker.showInfoWindow();
+                                    return true;
+
+                                }
+                            });
+
+                            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+                                @Override
+                                public void onInfoWindowClick(Marker marker) {
+
+                                    String[] latlng = marker.getSnippet().split(",");
+
+                                    tasklocation.setLatitude(Double.parseDouble(latlng[0]));
+                                    tasklocation.setLongitude(Double.parseDouble(latlng[1]));
+
+                                    double distance = location.distanceTo(tasklocation);
+
+                                    if (distance < 50.0) {
+
+                                        Intent intent = new Intent(ShowChallengesActivity.this.getApplicationContext(), ChallengeQuestionActivity.class);
+                                        String pitanje = marker.getTitle();
+                                        String tacanOdgovor = mHashMap.get(marker);
+                                        intent.putExtra("pitanje", pitanje);
+                                        intent.putExtra("tacanOdgovor", tacanOdgovor);
+                                        startActivity(intent);
+
+                                    } else {
+                                        Toast toast = Toast.makeText(ShowChallengesActivity.this,
+                                                "Ne mozete otvoriti pitanje niste dovoljno blizu, priblizite se jos " + String.valueOf(distance - 10.0) + "m",
+                                                Toast.LENGTH_SHORT);
+                                        toast.show();
+                                    }
+
+                                }
+                            });
                         }
-
-                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
-                            @Override
-                            public boolean onMarkerClick(Marker marker) {
-                                // if marker source is clicked
-                                //   Toast.makeText(MapsActivity.this, marker.getTitle(), Toast.LENGTH_SHORT).show();// display toast
-
-                                Intent intent = new Intent(ShowChallengesActivity.this.getApplicationContext(), ChallengeQuestionActivity.class);
-                                String pitanje = cq.getTekst();
-                                String tacanOdgovor = cq.getTacanOdgovor();
-                                intent.putExtra("pitanje", pitanje);
-                                intent.putExtra("tacanOdgovor", tacanOdgovor);
-                                startActivity(intent);
-                                return true;
-
-                            }
-                        });
                     }
-                    mMap.addMarker(centerOptions);
                 }
+
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                 }
-
-
             });
-        } else if (tip.equals("2")) {
+        }else if (tip.equals("2")) {
 
 
 
