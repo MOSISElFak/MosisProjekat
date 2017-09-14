@@ -15,8 +15,17 @@ class Korisnik {
     public String phonenumber;
     public String places;
     public Integer score;
-    //  public List<String> friends;
-    //  public String picture;
+    public List<String> friends;
+
+
+    public void setFriends(List<String> friends) {
+        this.friends = friends;
+    }
+
+    public List<String> getFriends() {
+        return friends;
+    }
+
 
 
 

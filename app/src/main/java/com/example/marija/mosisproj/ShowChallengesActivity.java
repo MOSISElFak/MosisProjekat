@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +29,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,6 +41,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -48,6 +52,7 @@ public class ShowChallengesActivity extends AppCompatActivity implements OnMapRe
 
     private double longitude;
     private double latitude;
+    private FloatingActionButton filter;
     private String tip;
     MarkerOptions centerOptions;
     private Gson gson;
@@ -63,6 +68,8 @@ public class ShowChallengesActivity extends AppCompatActivity implements OnMapRe
     private HashMap<Marker, String> mHashMap ;
     private BitmapDescriptor icon;
     private DownloadThread d;
+
+    FirebaseUser user;
 
 
     @Override
@@ -87,6 +94,21 @@ public class ShowChallengesActivity extends AppCompatActivity implements OnMapRe
          location = new Location(LocationManager.GPS_PROVIDER);
          location.setLongitude(longitude);
          location.setLatitude(latitude);
+
+        filter = (FloatingActionButton) findViewById(R.id.floatingActionButton);
+
+        filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder mBuilder=new AlertDialog.Builder(ShowChallengesActivity.this);
+                View mView=getLayoutInflater().inflate(R.layout.dialog_filter,null);
+
+
+                mBuilder.setView(mView);
+                AlertDialog dialog=mBuilder.show();
+                dialog.show();
+            }
+        });
 
 
        /* btnShowFriend.setOnClickListener(new View.OnClickListener() {
@@ -193,54 +215,133 @@ public class ShowChallengesActivity extends AppCompatActivity implements OnMapRe
             });
         }else if (tip.equals("2")) {
 
+            user = FirebaseAuth.getInstance().getCurrentUser();
+
+            db = FirebaseDatabase.getInstance().getReference("user");
+            db.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    //Getting the data from snapshot
+                    Korisnik u = dataSnapshot.child(user.getUid()).getValue(Korisnik.class);
+
+                    List<String> keys = u.friends;
+
+
+                    if (keys != null) {
+
+                        for (int i = 0; i < keys.size(); i++) {
+
+                            Korisnik k = dataSnapshot.child(keys.get(i)).getValue(Korisnik.class);
+
+                            if (markersMap == null)
+                                markersMap = new HashMap<String, String>();
+                            markersMap.put(k.getEmail(), keys.get(i));
+
+
+                            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+                                @Override
+                                public boolean onMarkerClick(Marker marker) {
+
+                                    marker.showInfoWindow();
+                                    return true;
+
+
+                                }
+                            });
+                            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+                                @Override
+                                public void onInfoWindowClick(Marker marker) {
+
+                                    Intent intent1 = new Intent(ShowChallengesActivity.this.getApplicationContext(), UsersProfileActivity.class);
+                                    String kljuc = markersMap.get(marker.getSnippet());
+                                    intent1.putExtra("kljuc", kljuc);
+                                    startActivity(intent1);
+
+                                }
+
+                            });
+
+
+                            String s = markersMap.get(k.getEmail());
+                            d = new DownloadThread(s, k);
+                            d.start();
+
+
+                            try {
+                                d.join();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+
 
 
         } else if (tip.equals("1")) {
             db = FirebaseDatabase.getInstance().getReference("user");
             db.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    mMap.clear();
-                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        //Getting the data from snapshot
-                        Korisnik k = postSnapshot.getValue(Korisnik.class);
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        mMap.clear();
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            //Getting the data from snapshot
+                            Korisnik k = postSnapshot.getValue(Korisnik.class);
 
-                        final String key = postSnapshot.getKey();
-                        if (markersMap == null)
-                            markersMap = new HashMap<String, String>();
-                        markersMap.put(k.getEmail(), key);
-
-
-                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
-                            @Override
-                            public boolean onMarkerClick(Marker marker) {
-
-                                Intent intent1 = new Intent(ShowChallengesActivity.this.getApplicationContext(), UsersProfileActivity.class);
-                                String kljuc = markersMap.get(marker.getSnippet());
-                                intent1.putExtra("kljuc", kljuc);
-                                startActivity(intent1);
-                                return true;
+                            final String key = postSnapshot.getKey();
+                            if (markersMap == null)
+                                markersMap = new HashMap<String, String>();
+                            markersMap.put(k.getEmail(), key);
 
 
+                            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+                                @Override
+                                public boolean onMarkerClick(Marker marker) {
+
+                                    marker.showInfoWindow();
+                                    return true;
+
+
+                                }
+                            });
+                            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+                                @Override
+                                public void onInfoWindowClick(Marker marker) {
+
+                                    Intent intent1 = new Intent(ShowChallengesActivity.this.getApplicationContext(), UsersProfileActivity.class);
+                                    String kljuc = markersMap.get(marker.getSnippet());
+                                    intent1.putExtra("kljuc", kljuc);
+                                    startActivity(intent1);
+
+                                }
+
+                            });
+
+
+                            String s = markersMap.get(k.getEmail());
+                            d = new DownloadThread(s, k);
+                            d.start();
+
+
+                            try {
+                                d.join();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
-                        });
-
-
-                        String s = markersMap.get(k.getEmail());
-                        d = new DownloadThread(s, k);
-                        d.start();
-
-
-                        try {
-                            d.join();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
                         }
+
+
                     }
-
-
-                }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {

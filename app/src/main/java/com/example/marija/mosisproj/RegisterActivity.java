@@ -35,7 +35,9 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -208,12 +210,14 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 });
 
+        List<String> friends=new ArrayList<String>();
 
         Korisnik t=new Korisnik();
         t.setFirstname(nameEdit.getText().toString());
         t.setLastname(lastnameEdit.getText().toString());
         t.setPhonenumber(phoneEdit.getText().toString());
         t.setEmail(user.getEmail());
+        t.setFriends(friends);
         t.setScore(0);
         mDatabase= FirebaseDatabase.getInstance().getReference();
         /*mDatabase.child("user").child(user.getUid()).child("firstname").setValue(nameEdit.getText().toString());

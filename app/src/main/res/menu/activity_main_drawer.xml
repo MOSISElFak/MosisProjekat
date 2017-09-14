@@ -10,14 +10,7 @@
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_account_circle_black_48px"
             android:title="Profil" />
-        <!--<item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />-->
+
     </group>
 
     <item android:title="Notifiakcije u blizini lokacija">
