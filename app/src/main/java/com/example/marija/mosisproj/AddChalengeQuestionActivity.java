@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -77,14 +78,12 @@ public class AddChalengeQuestionActivity extends AppCompatActivity {
 
                        ChalengeQuestion q = new ChalengeQuestion(question, answer);
 
-                       q.setLat(Double.toString(latitude));
-                       q.setLng(Double.toString(longitude));
+                       q.setLat(latitude);
+                       q.setLng(longitude);
 
-                       DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-                       Date today = Calendar.getInstance().getTime();
-                       String reportDate = df.format(today);
+                       String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
 
-                       q.setPostDate(reportDate);
+                       q.setPostDate(date);
 
                        mDatabase.child("challenge_questions").child(user.getUid().toString()).push().setValue(q);
 

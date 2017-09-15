@@ -1,5 +1,11 @@
 package com.example.marija.mosisproj;
 
+import android.icu.text.DateFormat;
+import android.icu.util.Calendar;
+import android.widget.DatePicker;
+
+import java.util.Date;
+
 /**
  * Created by Marija on 8/31/2017.
  */
@@ -7,8 +13,8 @@ package com.example.marija.mosisproj;
 public class ChalengeQuestion {
     public String tekst;
     public String tacanOdgovor;
-    public String lat;
-    public String lng;
+    public Double lat;
+    public Double lng;
     public String postDate;
 
 
@@ -27,21 +33,21 @@ public class ChalengeQuestion {
         this.tacanOdgovor=to;
     }
 
-    public String getLng() {
+    public Double getLng() {
         return lng;
     }
 
-    public String getLat() {
+    public Double getLat() {
 
         return lat;
     }
 
-    public void setLng(String lng) {
+    public void setLng(Double lng) {
 
         this.lng = lng;
     }
 
-    public void setLat(String lat) {
+    public void setLat(Double lat) {
 
         this.lat = lat;
     }
