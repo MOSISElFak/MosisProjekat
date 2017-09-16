@@ -40,11 +40,18 @@
             </LinearLayout>
 
             <Button
+                android:id="@+id/button6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Izaberi prvu sliku" />
+
+            <Button
                 android:id="@+id/buttonSelectPhotos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Izaberi slike" />
+                android:text="Izaberi drugu sliku" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -139,12 +146,6 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/buttonMap"
-                    android:layout_width="189dp"
-                    android:layout_height="wrap_content"
-                    android:text="Mapa" />
-
-                <Button
                     android:id="@+id/buttonDodaj"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -154,14 +155,17 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_width="fill_parent"
+                android:layout_height="500sp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
 
                 <fragment
                     android:id="@+id/map"
                     android:name="com.google.android.gms.maps.SupportMapFragment"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_margin="0dp"
                     map:layout_constraintBottom_toBottomOf="parent"
                     map:layout_constraintHorizontal_bias="0.0"
                     map:layout_constraintLeft_toLeftOf="parent"
@@ -169,6 +173,7 @@
                     map:layout_constraintTop_toTopOf="parent" />
 
             </LinearLayout>
+
 
         </LinearLayout>
     </ScrollView>

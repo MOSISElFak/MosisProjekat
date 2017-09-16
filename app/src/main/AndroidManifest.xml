@@ -82,7 +82,7 @@
         <activity android:name=".UsersProfileActivity" />
         <activity android:name=".ShowChallengesActivity" />
         <activity android:name=".ChallengeQuestionActivity" />
-        <activity android:name=".AddSpotActivity"></activity>
+        <activity android:name=".AddSpotActivity"/>
     </application>
 
 </manifest>
