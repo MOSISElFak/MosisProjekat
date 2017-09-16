@@ -92,6 +92,7 @@
         <activity android:name=".ChallengeQuestionActivity" />
         <activity android:name=".AddSpotActivity" />
         <activity android:name=".BluetoothActivity"></activity>
+
     </application>
 
 </manifest>
