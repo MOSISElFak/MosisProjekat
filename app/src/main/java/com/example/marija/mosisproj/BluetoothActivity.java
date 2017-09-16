@@ -65,6 +65,7 @@ public class BluetoothActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_bluetooth);
+        user = FirebaseAuth.getInstance().getCurrentUser();
         findViewsByIds();
 
         //check device support bluetooth or not
@@ -120,7 +121,6 @@ public class BluetoothActivity extends AppCompatActivity {
                     byte[] readBuf = (byte[]) msg.obj;
                     final String readMessage = new String(readBuf, 0, msg.arg1);
 
-                    user = FirebaseAuth.getInstance().getCurrentUser();
 
                     dref= FirebaseDatabase.getInstance().getReference().child("user").child(user.getUid());
 
@@ -141,7 +141,7 @@ public class BluetoothActivity extends AppCompatActivity {
                         }
                     });
 
-                    btnSend.performClick();
+                   // btnSend.performClick();
                     
                     chatMessages.add(connectingDevice.getName() + ":  " + readMessage);
                     chatAdapter.notifyDataSetChanged();
@@ -253,24 +253,23 @@ public class BluetoothActivity extends AppCompatActivity {
         status = (TextView) findViewById(R.id.status);
         btnConnect = (Button) findViewById(R.id.btn_connect);
         listView = (ListView) findViewById(R.id.list);
-       // inputLayout = (TextInputLayout) findViewById(R.id.input_layout);
+        inputLayout = (TextInputLayout) findViewById(R.id.input_layout);
 
 
-     //   inputLayout.getEditText().setText(s);
+        inputLayout.getEditText().setText("");
         btnSend= findViewById(R.id.btn_send);
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (inputLayout.getEditText().getText().toString().equals("")) {
-                    Toast.makeText(BluetoothActivity.this, "Please input some texts", Toast.LENGTH_SHORT).show();
-                } else {
+                //if (inputLayout.getEditText().getText().toString().equals("")) {
+                 //   Toast.makeText(BluetoothActivity.this, "Please input some texts", Toast.LENGTH_SHORT).show();
+               // } else {
                     //TODO: here
-                    user = FirebaseAuth.getInstance().getCurrentUser();
                     final String s=user.getUid();
                     sendMessage(s);
                    // inputLayout.getEditText().setText("");
-                }
+              //  }
             }
         });
     }
