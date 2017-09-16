@@ -11,6 +11,11 @@
             android:icon="@drawable/ic_account_circle_black_48px"
             android:title="Profil" />
 
+        <item
+            android:id="@+id/bluetooth"
+            android:icon="@drawable/ic_menu_send"
+            android:title="Bluetooth" />
+
     </group>
 
     <item android:title="Notifiakcije u blizini lokacija">

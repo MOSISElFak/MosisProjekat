@@ -26,7 +26,9 @@ class Korisnik {
         return friends;
     }
 
-
+    public void addFriends(String friend) {
+       this.friends.add(friend);
+    }
 
 
     public void setPlaces(String places) {

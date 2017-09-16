@@ -255,6 +255,11 @@ public class MainActivity extends AppCompatActivity
 
         }
 
+        else if (id == R.id.bluetooth) {
+            Intent bluetooth=new Intent(MainActivity.this.getApplicationContext(),BluetoothActivity.class);
+            startActivity(bluetooth);
+        }
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

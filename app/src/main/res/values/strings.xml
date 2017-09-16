@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">UpoznajGrad</string>
+    <string name="app_name">MosisProjekat</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_main">MainActivity</string>
 
@@ -14,4 +14,6 @@
     <string name="title_activity_profile">ProfileActivity</string>
     <string name="title_activity_quiz">QuizActivity</string>
     <string name="title_activity_add_question">AddQuestionActivity</string>
+    <string name="none_paired">No devices have been paired</string>
+    <string name="none_found">No devices found</string>
 </resources>
